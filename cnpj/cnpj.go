@@ -50,7 +50,10 @@ func cnpj(command *bot.Cmd) (string, error) {
 }
 
 func gerarCNPJ() string {
-	doc := rand.Perm(12)
+	doc := make([]int, 12)
+	for i := 0; i < 12; i++ {
+		doc[i] = rand.Intn(9)
+	}
 	dv1 := calcDV(doc)
 	doc = append(doc, dv1)
 	dv2 := calcDV(doc)

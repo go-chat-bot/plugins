@@ -41,6 +41,7 @@ func TestCNPJ(t *testing.T) {
 			So(error, ShouldBeNil)
 
 			So(quantidadeCnpjGerado(got), ShouldEqual, 1)
+			So(valid(strings.Trim(got, " ")), ShouldEqual, true)
 		})
 
 		Convey("Quando é passado uma quantidade de CPF para gerar", func() {
