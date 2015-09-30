@@ -21,12 +21,14 @@ const (
 func cpf(command *bot.Cmd) (string, error) {
 
 	var param string
-	if len(command.Args) == 0 {
+	switch len(command.Args) {
+	case 0:
 		param = "1"
-	} else if len(command.Args) == 1 {
+	case 1:
 		param = command.Args[0]
-	} else {
+	default:
 		return msgQuantidadeParametrosInvalida, nil
+
 	}
 
 	if len(param) > 2 {
@@ -78,6 +80,13 @@ func valid(cpf string) bool {
 	if len(cpf) != tamanhoCPF {
 		return false
 	}
+
+	for i := 0; i <= 9; i++ {
+		if cpf == strings.Repeat(string(i), 11) {
+			return false
+		}
+	}
+
 	s := strings.Split(cpf, "")
 
 	doc := make([]int, 9)
@@ -102,6 +111,6 @@ func init() {
 	bot.RegisterCommand(
 		"cpf",
 		"Gerador/Validador de CPF.",
-		"n para gerar n CPF e !cpf 11111111111 para validar um CPF",
+		"n para gerar n CPF e !cpf 12345678909 para validar um CPF",
 		cpf)
 }

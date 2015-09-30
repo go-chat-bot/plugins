@@ -61,6 +61,18 @@ func TestCPF(t *testing.T) {
 			So(error, ShouldBeNil)
 			So(got, ShouldEqual, fmt.Sprintf(msgFmtCpfInvalido, "123"))
 		})
+
+		Convey("Quando é passado o CPF com números repetidos deve invalidar", func() {
+			for i := 0; i <= 9; i++ {
+				cpfInvalido := strings.Repeat(string(i), 11)
+
+				bot.Args = []string{cpfInvalido}
+				got, error := cpf(bot)
+
+				So(error, ShouldBeNil)
+				So(got, ShouldEqual, fmt.Sprintf(msgFmtCpfInvalido, cpfInvalido))
+			}
+		})
 	})
 }
 
