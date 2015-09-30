@@ -51,7 +51,10 @@ func cpf(command *bot.Cmd) (string, error) {
 }
 
 func gerarCPF() string {
-	doc := rand.Perm(9)
+	doc := make([]int, 9)
+	for i := 0; i < 9; i++ {
+		doc[i] = rand.Intn(9)
+	}
 	dv1 := calcDV(doc)
 	doc = append(doc, dv1)
 	dv2 := calcDV(doc)

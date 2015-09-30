@@ -39,8 +39,8 @@ func TestCPF(t *testing.T) {
 			got, error := cpf(bot)
 
 			So(error, ShouldBeNil)
-
 			So(quantidadeCpfGerado(got), ShouldEqual, 1)
+			So(valid(strings.Trim(got, " ")), ShouldEqual, true)
 		})
 
 		Convey("Quando é passado uma quantidade de CPF para gerar", func() {
@@ -49,7 +49,6 @@ func TestCPF(t *testing.T) {
 			got, error := cpf(bot)
 
 			So(error, ShouldBeNil)
-
 			So(quantidadeCpfGerado(got), ShouldEqual, 3)
 		})
 
