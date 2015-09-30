@@ -5,28 +5,39 @@ import (
 	"testing"
 
 	"github.com/go-chat-bot/bot"
+	. "github.com/smartystreets/goconvey/convey"
 )
 
 const (
 	guidSize = 36
 )
 
-func TestCPF(t *testing.T) {
-	bot := &bot.Cmd{
-		Command: "guid",
-	}
+func TestGUID(t *testing.T) {
+	Convey("GUID", t, func() {
+		bot := &bot.Cmd{
+			Command: "guid",
+		}
 
-	got, error := guid(bot)
+		Convey("Should return a valid GUID", func() {
+			got, error := guid(bot)
 
-	if len(got) != guidSize {
-		t.Errorf("Expected GUID with '%v' characters got '%v'", guidSize, len(got))
-	}
+			So(error, ShouldBeNil)
+			So(len(got), ShouldEqual, guidSize)
+		})
 
-	if strings.Split(got, "")[14] != "4" {
-		t.Errorf("Expected GUID version 4 got an invalid ('%v')", got)
-	}
+		Convey("Should return a GUID version 4", func() {
+			got, error := guid(bot)
 
-	if error != nil {
-		t.Errorf("Expected '%v' got '%v'", nil, error)
-	}
+			So(error, ShouldBeNil)
+			So(strings.Split(got, "")[14], ShouldEqual, "4")
+		})
+
+		Convey("Should return a upper GUID", func() {
+			bot.Args = []string{"upper"}
+			got, error := guid(bot)
+
+			So(error, ShouldBeNil)
+			So(got, ShouldEqual, strings.ToUpper(got))
+		})
+	})
 }
