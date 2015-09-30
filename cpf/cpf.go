@@ -78,6 +78,13 @@ func valid(cpf string) bool {
 	if len(cpf) != tamanhoCPF {
 		return false
 	}
+
+	for i := 0; i <= 9; i++ {
+		if cpf == strings.Repeat(string(i), 11) {
+			return false
+		}
+	}
+
 	s := strings.Split(cpf, "")
 
 	doc := make([]int, 9)
