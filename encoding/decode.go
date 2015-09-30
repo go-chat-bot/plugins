@@ -3,13 +3,14 @@ package encoding
 import (
 	"encoding/base64"
 	"fmt"
+	"strings"
 
 	"github.com/go-chat-bot/bot"
 )
 
 func decode(command *bot.Cmd) (string, error) {
 
-	if len(command.Args) != 2 {
+	if len(command.Args) < 2 {
 		return invalidAmountOfParams, nil
 	}
 
@@ -17,9 +18,11 @@ func decode(command *bot.Cmd) (string, error) {
 	var err error
 	switch command.Args[0] {
 	case "base64":
-		str, err = decodeBase64(command.Args[1])
+		// s := strings.TrimPrefix(command.RawArgs, command.Args[0])
+		s := strings.Join(command.Args[1:], " ")
+		str, err = decodeBase64(s)
 	default:
-		return invalidParam, nil
+		return invalidParams, nil
 	}
 
 	if err != nil {
@@ -32,7 +35,7 @@ func decode(command *bot.Cmd) (string, error) {
 func decodeBase64(str string) (string, error) {
 	data, err := base64.StdEncoding.DecodeString(str)
 	if err != nil {
-		return "", nil
+		return "", err
 	}
 	return fmt.Sprintf("%s", data), nil
 }

@@ -3,18 +3,18 @@ package encoding
 import (
 	"encoding/base64"
 	"fmt"
+	"strings"
 
 	"github.com/go-chat-bot/bot"
 )
 
 const (
 	invalidAmountOfParams = "Invalid amount of parameters"
-	invalidParam          = "Invalid parameters"
+	invalidParams         = "Invalid parameters"
 )
 
 func encode(command *bot.Cmd) (string, error) {
-
-	if len(command.Args) != 2 {
+	if len(command.Args) < 2 {
 		return invalidAmountOfParams, nil
 	}
 
@@ -22,9 +22,11 @@ func encode(command *bot.Cmd) (string, error) {
 	var err error
 	switch command.Args[0] {
 	case "base64":
-		str, err = encodeBase64(command.Args[1])
+		// s := strings.TrimPrefix(command.RawArgs, command.Args[0])
+		s := strings.Join(command.Args[1:], " ")
+		str, err = encodeBase64(s)
 	default:
-		return invalidParam, nil
+		return invalidParams, nil
 	}
 
 	if err != nil {
