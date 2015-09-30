@@ -85,6 +85,11 @@ func valid(cnpj string) bool {
 	if len(cnpj) != tamanhoCNPJ {
 		return false
 	}
+
+	if cnpj == "00000000000000" {
+		return false
+	}
+
 	s := strings.Split(cnpj, "")
 
 	doc := make([]int, 12)
