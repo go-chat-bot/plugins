@@ -10,7 +10,7 @@ func TestReverseString(t *testing.T) {
 	want := "dlrow olleH"
 	bot := &bot.Cmd{
 		Command: "reverse",
-		FullArg: arg,
+		RawArgs: arg,
 	}
 
 	got, error := reverse(bot)
@@ -29,7 +29,7 @@ func TestReverseEmptyString(t *testing.T) {
 	want := ""
 	bot := &bot.Cmd{
 		Command: "reverse",
-		FullArg: arg,
+		RawArgs: arg,
 	}
 	got, error := reverse(bot)
 

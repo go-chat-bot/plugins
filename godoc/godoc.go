@@ -24,7 +24,7 @@ type godocResults struct {
 }
 
 func search(cmd *bot.Cmd) (string, error) {
-	if cmd.FullArg == "" {
+	if cmd.RawArgs == "" {
 		return "", nil
 	}
 
@@ -32,7 +32,7 @@ func search(cmd *bot.Cmd) (string, error) {
 
 	url, _ := url.Parse(godocSearchURL)
 	q := url.Query()
-	q.Set("q", cmd.FullArg)
+	q.Set("q", cmd.RawArgs)
 	url.RawQuery = q.Encode()
 
 	err := web.GetJSON(url.String(), data)

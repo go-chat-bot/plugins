@@ -36,12 +36,12 @@ func TestGoDoc(t *testing.T) {
 	Convey("Given a search query text", t, func() {
 
 		Reset(func() {
-			cmd.FullArg = ""
+			cmd.RawArgs = ""
 			apiResult = ""
 		})
 
 		Convey("When the result is empty", func() {
-			cmd.FullArg = "non existant package"
+			cmd.RawArgs = "non existant package"
 			apiResult = emptyResults
 
 			s, err := search(cmd)
@@ -51,7 +51,7 @@ func TestGoDoc(t *testing.T) {
 		})
 
 		Convey("When the result is ok", func() {
-			cmd.FullArg = "go-bot"
+			cmd.RawArgs = "go-bot"
 			apiResult = validResults
 
 			s, err := search(cmd)
@@ -61,7 +61,7 @@ func TestGoDoc(t *testing.T) {
 		})
 
 		Convey("When the query is empty", func() {
-			cmd.FullArg = ""
+			cmd.RawArgs = ""
 
 			s, err := search(cmd)
 
@@ -71,7 +71,7 @@ func TestGoDoc(t *testing.T) {
 
 		Convey("When the api is unreachable", func() {
 			godocSearchURL = "127.0.0.1:0"
-			cmd.FullArg = "go-bot"
+			cmd.RawArgs = "go-bot"
 
 			_, err := search(cmd)
 
