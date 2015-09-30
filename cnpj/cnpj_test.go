@@ -9,7 +9,7 @@ import (
 	. "github.com/smartystreets/goconvey/convey"
 )
 
-func TestCPF(t *testing.T) {
+func TestCNPJ(t *testing.T) {
 	Convey("CNPJ", t, func() {
 		bot := &bot.Cmd{
 			Command: "cnpj",
@@ -60,6 +60,17 @@ func TestCPF(t *testing.T) {
 
 			So(error, ShouldBeNil)
 			So(got, ShouldEqual, fmt.Sprintf(msgFmtCnpjInvalido, "123"))
+		})
+		Convey("Quando é passado o CNPJ com números repetidos deve invalidar", func() {
+			for i := 0; i <= 9; i++ {
+				cnpjInvalido := strings.Repeat(string(i), 14)
+
+				bot.Args = []string{cnpjInvalido}
+				got, error := cnpj(bot)
+
+				So(error, ShouldBeNil)
+				So(got, ShouldEqual, fmt.Sprintf(msgFmtCnpjInvalido, cnpjInvalido))
+			}
 		})
 	})
 }

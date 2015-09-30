@@ -21,11 +21,12 @@ const (
 func cnpj(command *bot.Cmd) (string, error) {
 
 	var param string
-	if len(command.Args) == 0 {
+	switch len(command.Args) {
+	case 0:
 		param = "1"
-	} else if len(command.Args) == 1 {
+	case 1:
 		param = command.Args[0]
-	} else {
+	default:
 		return msgQuantidadeParametrosInvalida, nil
 	}
 
@@ -85,6 +86,11 @@ func valid(cnpj string) bool {
 	if len(cnpj) != tamanhoCNPJ {
 		return false
 	}
+
+	if cnpj == "00000000000000" {
+		return false
+	}
+
 	s := strings.Split(cnpj, "")
 
 	doc := make([]int, 12)
@@ -109,6 +115,6 @@ func init() {
 	bot.RegisterCommand(
 		"cnpj",
 		"Gerador/Validador de CNPJ.",
-		"n para gerar n CNPJ e !cnpj 11111111111 para validar um CNPJ",
+		"n para gerar n CNPJ e !cnpj 99999999000191 para validar um CNPJ",
 		cnpj)
 }
