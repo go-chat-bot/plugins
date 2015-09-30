@@ -21,11 +21,12 @@ const (
 func cnpj(command *bot.Cmd) (string, error) {
 
 	var param string
-	if len(command.Args) == 0 {
+	switch len(command.Args) {
+	case 0:
 		param = "1"
-	} else if len(command.Args) == 1 {
+	case 1:
 		param = command.Args[0]
-	} else {
+	default:
 		return msgQuantidadeParametrosInvalida, nil
 	}
 
