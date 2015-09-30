@@ -1,0 +1,5 @@
+test:
+  pre:
+    - go get -d -t ./...
+  override:
+    go test ./... -race
