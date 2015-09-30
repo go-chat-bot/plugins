@@ -115,6 +115,6 @@ func init() {
 	bot.RegisterCommand(
 		"cnpj",
 		"Gerador/Validador de CNPJ.",
-		"n para gerar n CNPJ e !cnpj 11111111111 para validar um CNPJ",
+		"n para gerar n CNPJ e !cnpj 99999999000191 para validar um CNPJ",
 		cnpj)
 }

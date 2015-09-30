@@ -9,7 +9,7 @@ import (
 	. "github.com/smartystreets/goconvey/convey"
 )
 
-func TestCPF(t *testing.T) {
+func TestCNPJ(t *testing.T) {
 	Convey("CNPJ", t, func() {
 		bot := &bot.Cmd{
 			Command: "cnpj",
