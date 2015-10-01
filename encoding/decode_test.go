@@ -1,7 +1,6 @@
 package encoding
 
 import (
-	"strings"
 	"testing"
 
 	"github.com/go-chat-bot/bot"
@@ -27,9 +26,8 @@ func TestDecode(t *testing.T) {
 			bot.Args = []string{"base64", "R28gaXMgYW4gb3BlbiBzb3VyY2Ugc", "HJvZ3JhbW1pbmcgbGFuZ3VhZ2U="}
 			got, error := decode(bot)
 
-			want := 0
 			So(error, ShouldBeNil)
-			So(strings.Index(got, "Error: "), ShouldEqual, want)
+			So(got, ShouldStartWith, "Error: ")
 		})
 
 		Convey("Should return a error message when pass correct amount of params but invalid param", func() {

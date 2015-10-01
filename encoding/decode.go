@@ -36,7 +36,7 @@ func decodeBase64(str string) (string, error) {
 	if err != nil {
 		return "", err
 	}
-	return fmt.Sprintf("%s", data), nil
+	return string(data), nil
 }
 
 func init() {
