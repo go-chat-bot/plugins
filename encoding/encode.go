@@ -22,7 +22,6 @@ func encode(command *bot.Cmd) (string, error) {
 	var err error
 	switch command.Args[0] {
 	case "base64":
-		// s := strings.TrimPrefix(command.RawArgs, command.Args[0])
 		s := strings.Join(command.Args[1:], " ")
 		str, err = encodeBase64(s)
 	default:
