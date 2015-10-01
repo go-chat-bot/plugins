@@ -77,7 +77,7 @@ type giphy struct {
 
 func gif(command *bot.Cmd) (msg string, err error) {
 	data := &giphy{}
-	err = web.GetJSON(fmt.Sprintf(giphyURL, url.QueryEscape(command.FullArg)), data)
+	err = web.GetJSON(fmt.Sprintf(giphyURL, url.QueryEscape(command.RawArgs)), data)
 	if err != nil {
 		return "", err
 	}
