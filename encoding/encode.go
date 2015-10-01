@@ -44,6 +44,6 @@ func init() {
 	bot.RegisterCommand(
 		"encode",
 		"Allows you encoding a value",
-		"base64 \"enter text to encode\"",
+		"base64 enter here text to encode",
 		encode)
 }
