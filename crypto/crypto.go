@@ -46,6 +46,6 @@ func init() {
 	bot.RegisterCommand(
 		"crypto",
 		"Encrypts the input data from its hash value",
-		"md5 enter here text to encrypt",
+		"md5|sha-1 enter here text to encrypt",
 		crypto)
 }
