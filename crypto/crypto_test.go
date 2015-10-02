@@ -40,5 +40,26 @@ func TestCrypto(t *testing.T) {
 				So(got, ShouldEqual, want)
 			})
 		})
+
+		Convey("using SHA-1 algorithm", func() {
+
+			Convey("Should encrypt a value", func() {
+				bot.Args = []string{"sha1", "go-chat-bot"}
+				got, error := crypto(bot)
+				want := "385ca248ffebb5ed7f62d1ea2b0545cff80ac18e"
+
+				So(error, ShouldBeNil)
+				So(got, ShouldEqual, want)
+			})
+
+			Convey("Should encrypt multiple words", func() {
+				bot.Args = []string{"sha-1", "The", "Go", "Programming", "Language"}
+				got, error := crypto(bot)
+				want := "88a93e668044877a845097aaf620532a232bfd34"
+
+				So(error, ShouldBeNil)
+				So(got, ShouldEqual, want)
+			})
+		})
 	})
 }

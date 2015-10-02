@@ -2,6 +2,7 @@ package crypto
 
 import (
 	"crypto/md5"
+	"crypto/sha1"
 	"fmt"
 	"strings"
 
@@ -19,26 +20,26 @@ func crypto(command *bot.Cmd) (string, error) {
 		return invalidAmountOfParams, nil
 	}
 
-	var str string
-	var err error
-	switch command.Args[0] {
-	case "md5":
-		s := strings.Join(command.Args[1:], " ")
-		str, err = encryptMD5(s)
+	var hash string
+	inputData := []byte(strings.Join(command.Args[1:], " "))
+	switch strings.ToUpper(command.Args[0]) {
+	case "MD5":
+		hash = encryptMD5(inputData)
+	case "SHA1", "SHA-1":
+		hash = encryptSHA1(inputData)
 	default:
 		return invalidParams, nil
 	}
 
-	if err != nil {
-		return fmt.Sprintf("Error: %s", err), nil
-	}
-
-	return str, nil
+	return hash, nil
 }
 
-func encryptMD5(str string) (string, error) {
-	data := []byte(str)
-	return fmt.Sprintf("%x", md5.Sum(data)), nil
+func encryptMD5(data []byte) string {
+	return fmt.Sprintf("%x", md5.Sum(data))
+}
+
+func encryptSHA1(data []byte) string {
+	return fmt.Sprintf("%x", sha1.Sum(data))
 }
 
 func init() {
