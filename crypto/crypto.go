@@ -20,18 +20,15 @@ func crypto(command *bot.Cmd) (string, error) {
 		return invalidAmountOfParams, nil
 	}
 
-	var hash string
 	inputData := []byte(strings.Join(command.Args[1:], " "))
 	switch strings.ToUpper(command.Args[0]) {
 	case "MD5":
-		hash = encryptMD5(inputData)
+		return encryptMD5(inputData), nil
 	case "SHA1", "SHA-1":
-		hash = encryptSHA1(inputData)
+		return encryptSHA1(inputData), nil
 	default:
 		return invalidParams, nil
 	}
-
-	return hash, nil
 }
 
 func encryptMD5(data []byte) string {
