@@ -20,6 +20,14 @@ func TestCrypto(t *testing.T) {
 			So(got, ShouldEqual, invalidAmountOfParams)
 		})
 
+		Convey("Should return a error message when pass an invalid algorithm", func() {
+			bot.Args = []string{"invalidAlgorithm", "input data"}
+			got, error := crypto(bot)
+
+			So(error, ShouldBeNil)
+			So(got, ShouldEqual, invalidParams)
+		})
+
 		Convey("using MD5 algorithm", func() {
 
 			Convey("Should encrypt a value", func() {
