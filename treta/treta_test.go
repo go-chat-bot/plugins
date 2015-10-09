@@ -43,5 +43,13 @@ func TestTreta(t *testing.T) {
 			So(error, ShouldBeNil)
 			So(got, ShouldEqual, msgInvalidParam)
 		})
+
+		Convey("Should return a error message when pass a invalid amount of params", func() {
+			bot.Args = []string{"1", "2"}
+			got, error := treta(bot)
+
+			So(error, ShouldBeNil)
+			So(got, ShouldEqual, msgInvalidAmountOfParams)
+		})
 	})
 }
