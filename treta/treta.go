@@ -23,8 +23,9 @@ var (
 		"DELPHI": {
 			"Delphi. Now there's a name I haven't heard in a long time.",
 			"Access Violation at address 00405772 in module 'Project1.exe'. Read of address 00000388.",
-			"Develop iOS applications with RAD Studio",
+			"Delphi supports the development of iOS applications",
 			"It’s not difficult to read and listen about the wonders of Embarcadero DataSnap technology around the world.",
+			"Delphi was, and remains, vastly superior to Microsoft's offerings, in that users can actually produce working programs with it.",
 		},
 		"JAVA": {
 			"You're using Java? Well there's your problem.",
