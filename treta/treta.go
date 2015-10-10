@@ -32,7 +32,6 @@ var (
 			"Many individual Java programmers claim that it is the very best technology available, particularly when they don't know anything else.",
 			"Java Performance? You must be joking!",
 			"It is said that Java was an idea of God to show to Humans how stupid they were",
-			"",
 		},
 		"JAVASCRIPT": {
 			"Javascript is not funny",
