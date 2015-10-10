@@ -2,9 +2,10 @@ package dilma
 
 import (
 	"fmt"
-	"github.com/go-chat-bot/bot"
 	"math/rand"
 	"regexp"
+
+	"github.com/go-chat-bot/bot"
 )
 
 const (
@@ -33,6 +34,8 @@ var (
 		"É interessante que muitas vezes no Brasil, você é, como diz o povo brasileiro, muitas vezes você é criticado por ter o cachorro e, outras vezes, por não ter o mesmo cachorro. Esta é uma crítica interessante que acontece no Brasil",
 		"O bacalhau é uma moleza de fazer. Posso falar, é simplíssimo o bacalhau. Você corta várias coisas, bota uma camada, bota outra, bota, você vai ver o bacalhau… agora, é sem reclamações, sem reclamações. Tchau. Ah, não, não pode reclamar, porque senão não tem graça",
 		"Eu acho, Elizabeth,  que seria interessante que você olhasse entre os vários cursos que tem sido oferecidos inclusive pelo Senai",
+		"Dando um outro exemplo: até agora, a energia hidrelétrica é a mais barata, em termos do que ela dura com a manutenção e também pelo fato da água ser gratuita e da gente poder estocar. O vento podia ser isso também, mas você não conseguiu ainda tecnologia para estocar vento",
+		"Então, se a contribuição dos outros países, vamos supor que seja desenvolver uma tecnologia que seja capaz de na eólica estocar, ter uma forma de você estocar, porque o vento ele é diferente em horas do dia. Então, vamos supor que vente mais à noite, como eu faria para estocar isso? Hoje nós usamos as linhas de transmissão, você joga de lá para cá, de lá para lá, para poder capturar isso, mas se tiver uma tecnologia desenvolvida nessa área, todos nós nos beneficiaremos, o mundo inteiro",
 	}
 )
 
