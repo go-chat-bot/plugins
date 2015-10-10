@@ -35,8 +35,8 @@ var (
 			"It is said that Java was an idea of God to show to Humans how stupid they were",
 		},
 		"JAVASCRIPT": {
-			"Javascript is not funny",
-			"JavaScript why you no works?",
+			"Javascript is not funny at all",
+			"JavaScript, why don't you works?",
 			"Brace yourself. A new Javascript framework is coming.",
 			"Whoops! Maybe you were looking for Java?",
 			"JavaScript is a computer language for writing ineffectual computer viruses (interruptions to web surfing that will annoy the user without completely ruining his computer)",
