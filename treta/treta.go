@@ -19,6 +19,7 @@ var (
 			"Apple decided to discontinue the Macbook Air, though there are rumours of its reintroduction, as several enthusiastic customers have threatened suicide if the line is permanently discontinued.",
 			"Every once in a while, some brave soul dares to ask: \"Why do I keep buying Apple products? They're shit and extremely overpriced, but I just keep buying! WHY?!\" Apple's response is always some along the lines of: \"We own you.\"",
 			"The iPhone is the culmination of several years of research and development at Apple, in to how they could further extort money from customers while maintaining an almost Big Brother style control over their device.",
+			"Safari is worse than the fucking Internet Explorer Version 6.",
 		},
 		"DELPHI": {
 			"Delphi. Now there's a name I haven't heard in a long time.",
@@ -44,6 +45,7 @@ var (
 		"PYTHON": {
 			"We'll can do cool things... even with Python",
 			"No one has been able to live programming with Python",
+			"Python is the best programming language in the world... for kids to play and have fun.",
 		},
 		"RUBY": {
 			"Ruby is slower than Internet Explorer",
