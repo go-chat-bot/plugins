@@ -24,7 +24,7 @@ var (
 		"DELPHI": {
 			"Delphi. Now there's a name I haven't heard in a long time.",
 			"Access Violation at address 00405772 in module 'Project1.exe'. Read of address 00000388.",
-			"Delphi supports the development of iOS applications",
+			"Delphi supports the best way to develop iOS applications",
 			"It’s not difficult to read and listen about the wonders of Embarcadero DataSnap technology around the world.",
 			"Delphi was, and remains, vastly superior to Microsoft's offerings, in that users can actually produce working programs with it.",
 		},
@@ -37,7 +37,7 @@ var (
 		},
 		"JAVASCRIPT": {
 			"Javascript is not funny at all",
-			"JavaScript, why don't you works?",
+			"JavaScript, why don't you work?",
 			"Brace yourself. A new Javascript framework is coming.",
 			"Whoops! Maybe you were looking for Java?",
 			"JavaScript is a computer language for writing ineffectual computer viruses (interruptions to web surfing that will annoy the user without completely ruining his computer)",
@@ -56,7 +56,7 @@ var (
 			"The classic Hello, world! program is really easy with Ruby. You just need to know the name of the gem you want to install.",
 			"Python > Ruby",
 			"even PHP > Ruby",
-			"Ruby may do something completely useless and have infinite ways of doing something compeletely useless.",
+			"Ruby may do something completely useless and have infinite ways of doing something completely useless.",
 		},
 		"VIM": {
 			"Emacs > VIM",
