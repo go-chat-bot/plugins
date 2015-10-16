@@ -27,7 +27,7 @@ var (
 			"Access Violation at address 69696969 in module 'Treta.exe'. Read of address 00000666.",
 			"Delphi supports the best way to develop iOS applications",
 			"It’s not difficult to read and listen about the wonders of Embarcadero DataSnap technology around the world.",
-			"Delphi was, and remains, vastly superior to Microsoft's offerings, in that users can actually produce working programs with it.",
+			"Delphi was, and remains, vastly superior to anyone developer tools, in that users can actually produce working programs with it.",
 		},
 		"GO": {
 			"Go is the official programming language of the eXtreme Go Horse",
@@ -35,6 +35,7 @@ var (
 			"I don't know that Golang is a great language.",
 			"Go don't have classes/constructors, but we have to reinvent them... with much worse practices.",
 			"Oh Go! You so crazy!",
+			"Good, Good... Let the Golang flow through you.",
 		},
 		"LINUX": {
 			"The Linux philosophy is 'Laugh in the face of danger'. Oops. Wrong One. 'Do it yourself'. Yes, that's it.",
@@ -63,7 +64,6 @@ var (
 			"Python is the best programming language in the world... for kids to play and have fun.",
 		},
 		"RUBY": {
-			"Ruby is slower than Internet Explorer",
 			"Can Rails Scale? NOOOOO!",
 			"Why is Ruby so slow?",
 			"I hate managing inventory and the game drops more weapon than the rails can handle the requests",
@@ -74,6 +74,7 @@ var (
 			"even PHP is better than Ruby",
 			"Ruby may do something completely useless and have infinite ways of doing something completely useless.",
 			"I've hit this a few times in Ruby and it bugged me like crazy. But then I grew up, learned Python, and dealt with it.",
+			"Do your best to program, not just uses Ruby.",
 		},
 		"VIM": {
 			"Emacs > VIM",
