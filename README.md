@@ -16,9 +16,9 @@ Tip: Use `!help <command>` to obtaing more info about these commands.
 
 ### Passive (triggers)
 
-Passive commands are triggered by keywords, urls, etc.
+Passive commands receive all the text sent to the bot or the channels that the bot is in and can process it and reply.
 
-These commands differ from the active commands as they are executed for every match in any text. Ex: The Chuck Norris command, replies with a Chuck Norris fact every time the words "chuck" or "norris" are mentioned on a channel.
+These commands differ from the active commands as they are executed for every text that the bot receives. Ex: The Chuck Norris command, replies with a Chuck Norris fact every time the words "chuck" or "norris" are mentioned on a channel.
 
 * **url**: Detects url and gets it's title (very naive implementation, works sometimes)
 * **catfacts**: Tells a random cat fact based on some cat keywords
@@ -27,7 +27,7 @@ These commands differ from the active commands as they are executed for every ma
 
 ### Brazilian commands (pt-br)
 
-I also have some brazilian commands which only makes sense to brazillians:
+Some commands only makes sense to brazillians:
 
 * **megasena**: Gera um número da megasena ou mostra o último resultado
 * **cotacao**: Informa a cotação atual do Dólar e Euro
@@ -37,4 +37,6 @@ I also have some brazilian commands which only makes sense to brazillians:
 
 ### Wish to write a new plugin?
 
-Start with the 2 example commands, they are in the [example directory](https://github.com/go-chat-bot/plugins/tree/master/example) it's dead simple, you just need to write a go function and register it on the bot.
+Start with the example commands in the [example directory](https://github.com/go-chat-bot/plugins/tree/master/example).
+
+It's dead simple, you just need to write a go function and register it on the bot.
