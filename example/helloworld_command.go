@@ -2,11 +2,12 @@ package example
 
 import (
 	"fmt"
+
 	"github.com/go-chat-bot/bot"
 )
 
 func hello(command *bot.Cmd) (msg string, err error) {
-	msg = fmt.Sprintf("Hello %s", command.Nick)
+	msg = fmt.Sprintf("Hello %s", command.User.Nick)
 	return
 }
 
