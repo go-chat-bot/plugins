@@ -1,15 +1,18 @@
 package example
 
 import (
-	"github.com/go-chat-bot/bot"
 	"testing"
+
+	"github.com/go-chat-bot/bot"
 )
 
 func TestHelloworld(t *testing.T) {
 	want := "Hello nick"
 	bot := &bot.Cmd{
 		Command: "helloworld",
-		Nick:    "nick",
+		User: &bot.User{
+			Nick: "nick",
+		},
 	}
 	got, error := hello(bot)
 

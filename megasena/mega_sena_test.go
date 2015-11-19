@@ -2,12 +2,13 @@ package megasena
 
 import (
 	"fmt"
-	"github.com/go-chat-bot/bot"
-	. "github.com/smartystreets/goconvey/convey"
 	"net/http"
 	"net/http/httptest"
 	"regexp"
 	"testing"
+
+	"github.com/go-chat-bot/bot"
+	. "github.com/smartystreets/goconvey/convey"
 )
 
 const (
@@ -63,7 +64,6 @@ func TestMegaSena(t *testing.T) {
 
 		cmd := &bot.Cmd{
 			Command: "megasena",
-			Nick:    "nick",
 		}
 
 		Convey("Quando não é passado argumento", func() {
@@ -71,7 +71,7 @@ func TestMegaSena(t *testing.T) {
 			got, err := megasena(cmd)
 
 			So(err, ShouldBeNil)
-			So(got, ShouldEqual, fmt.Sprintf("%s: %s", cmd.Nick, msgOpcaoInvalida))
+			So(got, ShouldEqual, msgOpcaoInvalida)
 		})
 
 		Convey("Quando o argumento for gerar", func() {
@@ -80,7 +80,7 @@ func TestMegaSena(t *testing.T) {
 
 			So(err, ShouldBeNil)
 
-			match, err := regexp.MatchString("nick: (\\d{2} {1}){5}\\d{2}", got)
+			match, err := regexp.MatchString("(\\d{2} {1}){5}\\d{2}", got)
 
 			So(err, ShouldBeNil)
 			So(match, ShouldBeTrue)
@@ -99,7 +99,7 @@ func TestMegaSena(t *testing.T) {
 			got, err := megasena(cmd)
 
 			So(err, ShouldBeNil)
-			So(got, ShouldEqual, "nick: Sorteio 1636 de 17/09/2014: [19 26 33 35 51 52] - 0 premiado(s) R$ 0,00.")
+			So(got, ShouldEqual, "Sorteio 1636 de 17/09/2014: [19 26 33 35 51 52] - 0 premiado(s) R$ 0,00.")
 		})
 
 		Convey("Quando o argumento for resultado e o retorno for inválido", func() {

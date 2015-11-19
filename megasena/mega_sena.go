@@ -3,11 +3,12 @@ package megasena
 import (
 	"bytes"
 	"fmt"
-	"github.com/go-chat-bot/bot"
 	"math/rand"
 	"sort"
 	"strings"
 	"time"
+
+	"github.com/go-chat-bot/bot"
 )
 
 const (
@@ -26,7 +27,6 @@ func megasena(command *bot.Cmd) (msg string, err error) {
 			msg, err = resultado()
 		}
 	}
-	msg = fmt.Sprintf("%s: %s", command.Nick, msg)
 	return
 }
 
