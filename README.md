@@ -25,6 +25,16 @@ These commands differ from the active commands as they are executed for every te
 * **jira**: Detects jira issue numbers and posts the url (necessary to configure the JIRA URL)
 * **chucknorris**: Shows a random chuck norris quote every time the word "chuck" is mentioned
 
+### Periodic (triggers)
+
+Periodic commands are run based on a [cron
+specification](https://godoc.org/github.com/robfig/cron) passed to the
+config. These commands are runned periodically, outputting a message to
+the configured channel(s).
+
+Look into the good morning [example
+command](https://github.com/go-chat-bot/plugins/blob/master/example/goodmorning_command.go) for guidance on how to write and configure periodic commands.
+
 ### Brazilian commands (pt-br)
 
 Some commands only makes sense to brazillians:
