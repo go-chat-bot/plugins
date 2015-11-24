@@ -7,7 +7,7 @@ import (
 )
 
 func hello(command *bot.Cmd) (msg string, err error) {
-	msg = fmt.Sprintf("Hello %s", command.User.Nick)
+	msg = fmt.Sprintf("Hello %s", command.User.RealName)
 	return
 }
 
