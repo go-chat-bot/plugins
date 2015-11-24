@@ -19,10 +19,12 @@ func init() {
 
 	if len(channels) > 0 {
 		// Greets channel at 8am every week day
-		config := &bot.PeriodicConfig{CronSpec: "0 0 08 * * mon-fri", Channels: channels}
+		config := bot.PeriodicConfig{
+			CronSpec: "0 0 08 * * mon-fri",
+			Channels: channels,
+			CmdFunc:  goodMorning,
+		}
 
-		bot.RegisterPeriodicCommand(
-			config,
-			goodMorning)
+		bot.RegisterPeriodicCommand("good_morning", config)
 	}
 }
