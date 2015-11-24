@@ -7,13 +7,14 @@ import (
 )
 
 func TestHelloworld(t *testing.T) {
-	want := "Hello nick"
 	bot := &bot.Cmd{
 		Command: "helloworld",
 		User: &bot.User{
-			Nick: "nick",
+			Nick:     "nick",
+			RealName: "Real Name",
 		},
 	}
+	want := "Hello Real Name"
 	got, error := hello(bot)
 
 	if got != want {
