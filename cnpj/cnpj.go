@@ -2,16 +2,13 @@ package cnpj
 
 import (
 	"fmt"
-	"math"
-	"math/rand"
 	"strconv"
-	"strings"
 
 	"github.com/go-chat-bot/bot"
+	cnpjHelper "github.com/martinusso/go-docs/cnpj"
 )
 
 const (
-	tamanhoCNPJ                     = 14
 	msgParametroInvalido            = "Parâmetro inválido."
 	msgQuantidadeParametrosInvalida = "Quantidade de parâmetros inválida."
 	msgFmtCnpjValido                = "CNPJ %s é válido."
@@ -50,68 +47,11 @@ func cnpj(command *bot.Cmd) (string, error) {
 }
 
 func gerarCNPJ() string {
-	doc := make([]int, 12)
-	for i := 0; i < 12; i++ {
-		doc[i] = rand.Intn(9)
-	}
-	dv1 := calcDV(doc)
-	doc = append(doc, dv1)
-	dv2 := calcDV(doc)
-	doc = append(doc, dv2)
-
-	var str string
-	for _, value := range doc {
-		str += strconv.Itoa(value)
-	}
-	return str
-}
-
-func calcDV(doc []int) int {
-	multiplicadores := []int{2, 3, 4, 5, 6, 7, 8, 9}
-
-	var calc float64
-	m := 0
-	for i := len(doc) - 1; i >= 0; i-- {
-		calc += float64(multiplicadores[m] * doc[i])
-		m++
-		if m >= len(multiplicadores) {
-			m = 0
-		}
-	}
-	mod := int(math.Mod(calc*10, 11))
-	if mod == 10 {
-		return 0
-	}
-	return mod
+	return cnpjHelper.Generate()
 }
 
 func valid(cnpj string) bool {
-	if len(cnpj) != tamanhoCNPJ {
-		return false
-	}
-
-	if cnpj == "00000000000000" {
-		return false
-	}
-
-	s := strings.Split(cnpj, "")
-
-	doc := make([]int, 12)
-	for i := 0; i <= 11; i++ {
-		digito, err := strconv.Atoi(s[i])
-		if err != nil {
-			return false
-		}
-		doc[i] = digito
-	}
-
-	dv1 := calcDV(doc)
-	doc = append(doc, dv1)
-	dv2 := calcDV(doc)
-
-	dv1Valido := strconv.Itoa(dv1) == string(s[12])
-	dv2Valido := strconv.Itoa(dv2) == string(s[13])
-	return dv1Valido && dv2Valido
+	return cnpjHelper.Valid(cnpj)
 }
 
 func init() {
