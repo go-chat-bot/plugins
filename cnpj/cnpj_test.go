@@ -26,16 +26,16 @@ func TestCNPJ(t *testing.T) {
 		})
 
 		Convey("Quando é passado um CNPJ inválido para validação", func() {
-			cnpjValido := "99999999000100"
-			bot.Args = []string{cnpjValido}
+			cnpjInvalido := "99999999000100"
+			bot.Args = []string{cnpjInvalido}
 
 			got, error := cnpj(bot)
 
 			So(error, ShouldBeNil)
-			So(got, ShouldEqual, fmt.Sprintf(msgFmtCnpjInvalido, cnpjValido))
+			So(got, ShouldEqual, fmt.Sprintf(msgFmtCnpjInvalido, cnpjInvalido))
 		})
 
-		Convey("Quando não é passado parâmetro deve gerar apenas 1 CPF", func() {
+		Convey("Quando não é passado parâmetro deve gerar apenas 1 CNPJ", func() {
 			got, error := cnpj(bot)
 
 			So(error, ShouldBeNil)
@@ -44,7 +44,7 @@ func TestCNPJ(t *testing.T) {
 			So(valid(strings.Trim(got, " ")), ShouldEqual, true)
 		})
 
-		Convey("Quando é passado uma quantidade de CPF para gerar", func() {
+		Convey("Quando é passado uma quantidade de CNPJ para gerar", func() {
 			bot.Args = []string{"3"}
 
 			got, error := cnpj(bot)
