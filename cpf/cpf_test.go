@@ -26,13 +26,13 @@ func TestCPF(t *testing.T) {
 		})
 
 		Convey("Quando é passado um CPF inválido para validação", func() {
-			cpfValido := "52998224700"
-			bot.Args = []string{cpfValido}
+			cpfInvalido := "52998224700"
+			bot.Args = []string{cpfInvalido}
 
 			got, error := cpf(bot)
 
 			So(error, ShouldBeNil)
-			So(got, ShouldEqual, fmt.Sprintf(msgFmtCpfInvalido, cpfValido))
+			So(got, ShouldEqual, fmt.Sprintf(msgFmtCpfInvalido, cpfInvalido))
 		})
 
 		Convey("Quando não é passado parâmetro deve gerar apenas 1 CPF", func() {
