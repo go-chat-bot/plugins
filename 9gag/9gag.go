@@ -13,17 +13,17 @@ const (
 )
 
 func randomPage(command *bot.Cmd) (string, error) {
-	var redirectAttempted = errors.New("redirect")
+	var redirectNotAllowed = errors.New("redirect")
 	redirectedURL := ""
 
 	client := http.Client{}
 	client.CheckRedirect = func(req *http.Request, via []*http.Request) error {
 		redirectedURL = req.URL.String()
-		return redirectAttempted
+		return redirectNotAllowed
 	}
 
 	_, err := client.Get(randomURL)
-	if urlError, ok := err.(*url.Error); ok && urlError.Err == redirectAttempted {
+	if urlError, ok := err.(*url.Error); ok && urlError.Err == redirectNotAllowed {
 		return redirectedURL, nil
 	}
 	return "", err
