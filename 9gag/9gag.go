@@ -1,21 +1,32 @@
 package gag
 
 import (
+	"errors"
 	"net/http"
+	"net/url"
 
 	"github.com/go-chat-bot/bot"
 )
 
 const (
-	rangomPage = "http://9gag.com/random"
+	randomURL = "http://9gag.com/random"
 )
 
-func gag(command *bot.Cmd) (string, error) {
-	res, err := http.Get(rangomPage)
-	if err != nil {
-		return "", err
+func randomPage(command *bot.Cmd) (string, error) {
+	var redirectNotAllowed = errors.New("redirect")
+	redirectedURL := ""
+
+	client := http.Client{}
+	client.CheckRedirect = func(req *http.Request, via []*http.Request) error {
+		redirectedURL = req.URL.String()
+		return redirectNotAllowed
 	}
-	return res.Request.URL.String(), nil
+
+	_, err := client.Get(randomURL)
+	if urlError, ok := err.(*url.Error); ok && urlError.Err == redirectNotAllowed {
+		return redirectedURL, nil
+	}
+	return "", err
 }
 
 func init() {
@@ -23,5 +34,5 @@ func init() {
 		"9gag",
 		"Returns a random 9gag page.",
 		"",
-		gag)
+		randomPage)
 }
