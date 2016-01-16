@@ -35,18 +35,33 @@ the configured channel(s).
 Look into the good morning [example
 command](https://github.com/go-chat-bot/plugins/blob/master/example/goodmorning_command.go) for guidance on how to write and configure periodic commands.
 
-### Brazilian commands (pt-br)
-
-Some commands only makes sense to brazillians:
-
-* **megasena**: Gera um número da megasena ou mostra o último resultado
-* **cotacao**: Informa a cotação atual do Dólar e Euro
-* **dilma** (passivo): Diz alguma frase da Dilma quando a palavra "dilma" é citada
-* **cpf**: Gera e valida CPFs
-* **cnpj**: Gera e valida CNPJs
-
 ### Wish to write a new plugin?
 
 Start with the example commands in the [example directory](https://github.com/go-chat-bot/plugins/tree/master/example).
 
 It's dead simple, you just need to write a go function and register it on the bot.
+
+Here's a Hello World plugin example:
+
+```Go
+package example
+
+import (
+	"fmt"
+
+	"github.com/go-chat-bot/bot"
+)
+
+func hello(command *bot.Cmd) (msg string, err error) {
+	msg = fmt.Sprintf("Hello %s", command.User.RealName)
+	return
+}
+
+func init() {
+	bot.RegisterCommand(
+		"hello",
+		"Sends a 'Hello' message to you on the channel.",
+		"",
+		hello)
+}
+```
