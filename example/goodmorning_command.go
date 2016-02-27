@@ -8,8 +8,8 @@ import (
 	"github.com/go-chat-bot/bot"
 )
 
-func goodMorning() (msg string, err error) {
-	msg = fmt.Sprintf("Good morning, channel!")
+func goodMorning(channel string) (msg string, err error) {
+	msg = fmt.Sprintf("Good morning, %s!", channel)
 	return
 }
 
