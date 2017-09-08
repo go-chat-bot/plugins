@@ -12,7 +12,7 @@ const (
 	msgPrefix = "I love cats! Here's a fact: %s"
 )
 
-type CatFact struct {
+type catFact struct {
 	Fact   string   `json:"fact"`
 	Length int      `json:"length"`
 }
@@ -26,7 +26,7 @@ func catFacts(command *bot.PassiveCmd) (string, error) {
 	if !re.MatchString(command.Raw) {
 		return "", nil
 	}
-	data := &CatFact{}
+	data := &catFact{}
 	err := web.GetJSON(catFactsURL, data)
 	if err != nil {
 		return "", err
