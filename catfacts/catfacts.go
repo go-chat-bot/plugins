@@ -12,32 +12,31 @@ const (
 	msgPrefix = "I love cats! Here's a fact: %s"
 )
 
-type facts struct {
-	Facts   []string `json:"facts"`
-	Success string   `json:"success"`
+type catFact struct {
+	Fact   string   `json:"fact"`
+	Length int      `json:"length"`
 }
 
 var (
 	re          = regexp.MustCompile(pattern)
-	catFactsURL = "http://catfacts-api.appspot.com/api/facts?number=1"
+	catFactsURL = "http://catfact.ninja/fact"
 )
 
 func catFacts(command *bot.PassiveCmd) (string, error) {
 	if !re.MatchString(command.Raw) {
 		return "", nil
 	}
-	data := &facts{}
+	data := &catFact{}
 	err := web.GetJSON(catFactsURL, data)
 	if err != nil {
 		return "", err
 	}
 
-	if len(data.Facts) == 0 {
+	if len(data.Fact) == 0 {
 		return "", nil
 	}
 
-	return fmt.Sprintf(msgPrefix, data.Facts[0]), nil
-}
+	return fmt.Sprintf(msgPrefix, data.Fact), nil}
 
 func init() {
 	bot.RegisterPassiveCommand(
