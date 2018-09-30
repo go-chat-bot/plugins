@@ -16,7 +16,8 @@ func TestJira(t *testing.T) {
 			s, err := jira(cmd)
 
 			So(err, ShouldBeNil)
-			So(s, ShouldEqual, "")
+			So(<-s.Done, ShouldEqual, true)
+			So(s.Message, ShouldBeEmpty)
 		})
 
 		Convey("When the text match a jira issue syntax", func() {
@@ -24,7 +25,9 @@ func TestJira(t *testing.T) {
 			s, err := jira(cmd)
 
 			So(err, ShouldBeNil)
-			So(s, ShouldEqual, fmt.Sprintf("%s%s", url, "MON-965"))
+			So(<-s.Message, ShouldEqual, fmt.Sprintf("%s%s", url, "MON-965"))
+			So(<-s.Done, ShouldEqual, true)
+			So(s.Message, ShouldBeEmpty)
 		})
 
 		Convey("When the text has a jira issue in the midle of a word", func() {
@@ -32,7 +35,9 @@ func TestJira(t *testing.T) {
 			s, err := jira(cmd)
 
 			So(err, ShouldBeNil)
-			So(s, ShouldEqual, "")
+			So(<-s.Message, ShouldEqual, fmt.Sprintf("%s%s", url, "BOT-123"))
+			So(<-s.Done, ShouldEqual, true)
+			So(s.Message, ShouldBeEmpty)
 		})
 
 		Convey("When the text has a jira issue syntax with only two numbers", func() {
@@ -40,7 +45,9 @@ func TestJira(t *testing.T) {
 			s, err := jira(cmd)
 
 			So(err, ShouldBeNil)
-			So(s, ShouldEqual, fmt.Sprintf("%s%s", url, "BOT-12"))
+			So(<-s.Message, ShouldEqual, fmt.Sprintf("%s%s", url, "BOT-12"))
+			So(<-s.Done, ShouldEqual, true)
+			So(s.Message, ShouldBeEmpty)
 		})
 
 		Convey("When the jira issue isn't preceeded by space", func() {
@@ -48,7 +55,21 @@ func TestJira(t *testing.T) {
 			s, err := jira(cmd)
 
 			So(err, ShouldBeNil)
-			So(s, ShouldEqual, "")
+			So(<-s.Message, ShouldEqual, fmt.Sprintf("%s%s", url, "BOT-122"))
+			So(<-s.Done, ShouldEqual, true)
+			So(s.Message, ShouldBeEmpty)
+		})
+
+		Convey("When multiple jiras are referenced", func() {
+			cmd.Raw = "::BOT-122,BOT-234 and BOT-321"
+			s, err := jira(cmd)
+
+			So(err, ShouldBeNil)
+			So(<-s.Message, ShouldEqual, fmt.Sprintf("%s%s", url, "BOT-122"))
+			So(<-s.Message, ShouldEqual, fmt.Sprintf("%s%s", url, "BOT-234"))
+			So(<-s.Message, ShouldEqual, fmt.Sprintf("%s%s", url, "BOT-321"))
+			So(s.Message, ShouldBeEmpty)
+			So(<- s.Done, ShouldEqual, true)
 		})
 	})
 }
