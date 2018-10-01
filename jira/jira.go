@@ -1,20 +1,49 @@
 package jira
 
 import (
+	"fmt"
+	gojira "github.com/andygrunwald/go-jira"
 	"github.com/go-chat-bot/bot"
+	"log"
 	"os"
 	"regexp"
 )
 
 const (
-	pattern = ".*?([A-Z]+)-([0-9]+)\\b"
-	env     = "JIRA_ISSUES_URL"
+	pattern    = ".*?([A-Z]+)-([0-9]+)\\b"
+	env        = "JIRA_ISSUES_URL"
+	userEnv    = "JIRA_USER"
+	passEnv    = "JIRA_PASS"
+	baseURLEnv = "JIRA_BASE_URL"
 )
 
 var (
-	url string
-	re  = regexp.MustCompile(pattern)
+	url      string
+	baseURL  string
+	jiraUser string
+	jiraPass string
+	projects map[string]gojira.Project
+	client   *gojira.Client
+	re       = regexp.MustCompile(pattern)
 )
+
+func getProjects() (map[string]gojira.Project, error) {
+	req, err := client.NewRequest("GET", "rest/api/2/project", nil)
+	if err != nil {
+		return projects, fmt.Errorf("Error creating request object: %v", err)
+	}
+
+	projectObjects := new([]gojira.Project)
+	projects = make(map[string]gojira.Project)
+	_, err = client.Do(req, projectObjects)
+	if err != nil {
+		return projects, fmt.Errorf("Failed getting JIRA projects: %v", err)
+	}
+	for _, project := range *projectObjects {
+		projects[project.Key] = project
+	}
+	return projects, nil
+}
 
 func getIssues(text string) [][2]string {
 	matches := re.FindAllStringSubmatch(text, -1)
@@ -37,7 +66,10 @@ func jira(cmd *bot.PassiveCmd) (bot.CmdResultV3, error) {
 		go func() {
 			for _, issue := range issues {
 				key, num := issue[0], issue[1]
-				result.Message <- url + key + "-" + num
+				_, found := projects[key]
+				if found {
+					result.Message <- url + key + "-" + num
+				}
 			}
 			result.Done <- true
 		}()
@@ -49,7 +81,29 @@ func jira(cmd *bot.PassiveCmd) (bot.CmdResultV3, error) {
 }
 
 func init() {
+	var err error
 	url = os.Getenv(env)
+	jiraUser = os.Getenv(userEnv)
+	jiraPass = os.Getenv(passEnv)
+	baseURL = os.Getenv(baseURLEnv)
+
+	tp := gojira.BasicAuthTransport{
+		Username: jiraUser,
+		Password: jiraPass,
+	}
+
+	client, err = gojira.NewClient(tp.Client(), baseURL)
+	if err != nil {
+		log.Printf("Error initializing JIRA client: %v\n", err)
+		return
+	}
+
+	_, err = getProjects()
+	if err != nil {
+		log.Printf("Error querying JIRA for projects: %v\n", err)
+		return
+	}
+
 	bot.RegisterPassiveCommandV2(
 		"jira",
 		jira)
