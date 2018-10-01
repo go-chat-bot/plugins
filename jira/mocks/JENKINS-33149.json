@@ -1,0 +1,273 @@
+{
+    "expand": "renderedFields,names,schema,operations,editmeta,changelog,versionedRepresentations",
+    "id": "168520",
+    "self": "https://issues.jenkins-ci.org/rest/api/2/issue/168520",
+    "key": "JENKINS-33149",
+    "fields": {
+        "issuetype": {
+            "self": "https://issues.jenkins-ci.org/rest/api/2/issuetype/1",
+            "id": "1",
+            "description": "A problem which impairs or prevents the functions of the product.",
+            "iconUrl": "https://issues.jenkins-ci.org/secure/viewavatar?size=xsmall&avatarId=14673&avatarType=issuetype",
+            "name": "Bug",
+            "subtask": false,
+            "avatarId": 14673
+        },
+        "project": {
+            "self": "https://issues.jenkins-ci.org/rest/api/2/project/10172",
+            "id": "10172",
+            "key": "JENKINS",
+            "name": "Jenkins",
+            "avatarUrls": {
+                "48x48": "https://issues.jenkins-ci.org/secure/projectavatar?pid=10172&avatarId=10152",
+                "24x24": "https://issues.jenkins-ci.org/secure/projectavatar?size=small&pid=10172&avatarId=10152",
+                "16x16": "https://issues.jenkins-ci.org/secure/projectavatar?size=xsmall&pid=10172&avatarId=10152",
+                "32x32": "https://issues.jenkins-ci.org/secure/projectavatar?size=medium&pid=10172&avatarId=10152"
+            }
+        },
+        "resolution": {
+            "self": "https://issues.jenkins-ci.org/rest/api/2/resolution/2",
+            "id": "2",
+            "description": "The problem described is an issue which will never be fixed.",
+            "name": "Won't Fix"
+        },
+        "resolutiondate": "2016-02-29T15:02:11.000+0000",
+        "workratio": -1,
+        "lastViewed": "2018-10-01T19:34:30.708+0000",
+        "watches": {
+            "self": "https://issues.jenkins-ci.org/rest/api/2/issue/JENKINS-33149/watchers",
+            "watchCount": 3,
+            "isWatching": false
+        },
+        "created": "2016-02-25T09:06:06.000+0000",
+        "priority": {
+            "self": "https://issues.jenkins-ci.org/rest/api/2/priority/4",
+            "iconUrl": "https://issues.jenkins-ci.org/images/icons/priorities/minor.svg",
+            "name": "Minor",
+            "id": "4"
+        },
+        "labels": [],
+        "issuelinks": [],
+        "assignee": {
+            "self": "https://issues.jenkins-ci.org/rest/api/2/user?username=ndeloof",
+            "name": "ndeloof",
+            "key": "ndeloof",
+            "avatarUrls": {
+                "48x48": "https://issues.jenkins-ci.org/secure/useravatar?ownerId=ndeloof&avatarId=10232",
+                "24x24": "https://issues.jenkins-ci.org/secure/useravatar?size=small&ownerId=ndeloof&avatarId=10232",
+                "16x16": "https://issues.jenkins-ci.org/secure/useravatar?size=xsmall&ownerId=ndeloof&avatarId=10232",
+                "32x32": "https://issues.jenkins-ci.org/secure/useravatar?size=medium&ownerId=ndeloof&avatarId=10232"
+            },
+            "displayName": "Nicolas De Loof",
+            "active": true,
+            "timeZone": "Europe/Paris"
+        },
+        "updated": "2016-05-30T11:33:31.000+0000",
+        "status": {
+            "self": "https://issues.jenkins-ci.org/rest/api/2/status/6",
+            "description": "The issue is considered finished, the resolution is correct. Issues which are closed can be reopened.",
+            "iconUrl": "https://issues.jenkins-ci.org/images/icons/statuses/closed.png",
+            "name": "Closed",
+            "id": "6",
+            "statusCategory": {
+                "self": "https://issues.jenkins-ci.org/rest/api/2/statuscategory/3",
+                "id": 3,
+                "key": "done",
+                "colorName": "green",
+                "name": "Done"
+            }
+        },
+        "components": [
+            {
+                "self": "https://issues.jenkins-ci.org/rest/api/2/component/20634",
+                "id": "20634",
+                "name": "docker-custom-build-environment-plugin",
+                "description": "docker-custom-build-environment-plugin plugin"
+            }
+        ],
+        "description": "Steps:\r\n\r\n1. Create an image that specifies an entrypoint in the Dockerfile, e.g.:\r\n{{ENTRYPOINT [ \"/usr/share/maven/bin/mvn\" ]}}\r\n2. Create a build job that uses the image as a Build Environment\r\n\r\nWhen the environment is started docker run passes \"cat\" as a command but does not override the entry point. The result is that \"/usr/share/maven/bin/mvn cat\" is invoked in the container which typically fails causing the whole build to fail with an unexpected error.\r\n\r\nThere is no configuration option to specify the entrypoint for the Build Environment.",
+        "attachment": [],
+        "summary": "Images that specify an entrypoint can not be used as a build environment",
+        "creator": {
+            "self": "https://issues.jenkins-ci.org/rest/api/2/user?username=spingel",
+            "name": "spingel",
+            "key": "spingel",
+            "avatarUrls": {
+                "48x48": "https://issues.jenkins-ci.org/secure/useravatar?avatarId=10292",
+                "24x24": "https://issues.jenkins-ci.org/secure/useravatar?size=small&avatarId=10292",
+                "16x16": "https://issues.jenkins-ci.org/secure/useravatar?size=xsmall&avatarId=10292",
+                "32x32": "https://issues.jenkins-ci.org/secure/useravatar?size=medium&avatarId=10292"
+            },
+            "displayName": "Steffen Pingel",
+            "active": true,
+            "timeZone": "Europe/Berlin"
+        },
+        "reporter": {
+            "self": "https://issues.jenkins-ci.org/rest/api/2/user?username=spingel",
+            "name": "spingel",
+            "key": "spingel",
+            "avatarUrls": {
+                "48x48": "https://issues.jenkins-ci.org/secure/useravatar?avatarId=10292",
+                "24x24": "https://issues.jenkins-ci.org/secure/useravatar?size=small&avatarId=10292",
+                "16x16": "https://issues.jenkins-ci.org/secure/useravatar?size=xsmall&avatarId=10292",
+                "32x32": "https://issues.jenkins-ci.org/secure/useravatar?size=medium&avatarId=10292"
+            },
+            "displayName": "Steffen Pingel",
+            "active": true,
+            "timeZone": "Europe/Berlin"
+        },
+        "environment": null,
+        "comment": {
+            "comments": [
+                {
+                    "self": "https://issues.jenkins-ci.org/rest/api/2/issue/168520/comment/249294",
+                    "id": "249294",
+                    "author": {
+                        "self": "https://issues.jenkins-ci.org/rest/api/2/user?username=ndeloof",
+                        "name": "ndeloof",
+                        "key": "ndeloof",
+                        "avatarUrls": {
+                            "48x48": "https://issues.jenkins-ci.org/secure/useravatar?ownerId=ndeloof&avatarId=10232",
+                            "24x24": "https://issues.jenkins-ci.org/secure/useravatar?size=small&ownerId=ndeloof&avatarId=10232",
+                            "16x16": "https://issues.jenkins-ci.org/secure/useravatar?size=xsmall&ownerId=ndeloof&avatarId=10232",
+                            "32x32": "https://issues.jenkins-ci.org/secure/useravatar?size=medium&ownerId=ndeloof&avatarId=10232"
+                        },
+                        "displayName": "Nicolas De Loof",
+                        "active": true,
+                        "timeZone": "Europe/Paris"
+                    },
+                    "body": "According to Docker best practices, entrypoint should be designed to detect it is used to run a single command, and not just pass additional arguments.\r\nIf you use Entrypoint this way, then your Docker image is designed to run a standalone service, not to be used as a build environment. Just adjust your Docker image to your needs.",
+                    "updateAuthor": {
+                        "self": "https://issues.jenkins-ci.org/rest/api/2/user?username=ndeloof",
+                        "name": "ndeloof",
+                        "key": "ndeloof",
+                        "avatarUrls": {
+                            "48x48": "https://issues.jenkins-ci.org/secure/useravatar?ownerId=ndeloof&avatarId=10232",
+                            "24x24": "https://issues.jenkins-ci.org/secure/useravatar?size=small&ownerId=ndeloof&avatarId=10232",
+                            "16x16": "https://issues.jenkins-ci.org/secure/useravatar?size=xsmall&ownerId=ndeloof&avatarId=10232",
+                            "32x32": "https://issues.jenkins-ci.org/secure/useravatar?size=medium&ownerId=ndeloof&avatarId=10232"
+                        },
+                        "displayName": "Nicolas De Loof",
+                        "active": true,
+                        "timeZone": "Europe/Paris"
+                    },
+                    "created": "2016-02-29T15:02:04.000+0000",
+                    "updated": "2016-02-29T15:02:04.000+0000"
+                },
+                {
+                    "self": "https://issues.jenkins-ci.org/rest/api/2/issue/168520/comment/259298",
+                    "id": "259298",
+                    "author": {
+                        "self": "https://issues.jenkins-ci.org/rest/api/2/user?username=mgreau",
+                        "name": "mgreau",
+                        "key": "mgreau",
+                        "avatarUrls": {
+                            "48x48": "https://issues.jenkins-ci.org/secure/useravatar?ownerId=mgreau&avatarId=16261",
+                            "24x24": "https://issues.jenkins-ci.org/secure/useravatar?size=small&ownerId=mgreau&avatarId=16261",
+                            "16x16": "https://issues.jenkins-ci.org/secure/useravatar?size=xsmall&ownerId=mgreau&avatarId=16261",
+                            "32x32": "https://issues.jenkins-ci.org/secure/useravatar?size=medium&ownerId=mgreau&avatarId=16261"
+                        },
+                        "displayName": "Maxime GREAU",
+                        "active": true,
+                        "timeZone": "GMT"
+                    },
+                    "body": "I'm blocked with the same case and I found this issue, cool.\r\nBut I'm not agree with the resolution :) .\r\n\r\nSo in our case we try to use the simplest (and same) commands for developers and CI environment.\r\n\r\nThat's why we have created some Docker CI images for each stack (JDK8/Maven32, JDK6/Maven30...) with\r\nthe following Dockerfile commands:\r\n\r\n{code}\r\n...\r\nENTRYPOINT [\"mvn\"]\r\nCMD [\"--help\"]\r\n{code}\r\nhttps://github.com/exo-docker/exo-ci/blob/master/jdk8-maven32/Dockerfile#L50-L51\r\n\r\nSo now we can easily build our legacy or newest projects without all Maven and JDK versions installed locally, with the following command:\r\n\r\n{code}\r\n$ cd my-project\r\n$ docker run --name=my-project-build -it -v $(pwd):/opt/ciagent/workspace \\\r\n     -v ~/.m2/repository:/opt/ciagent/.m2/repository \\\r\n     -v ~/.m2/settings.xml:/opt/ciagent/.m2/settings.xml \\\r\n     exoplatform/ci:jdk8-maven32 clean package\r\n{code}\r\n\r\nAccording to the official Docker documentation and best practices, such use of ENTRYPOINT and CMD Dockerfile commands seems to be the\r\ngood one:\r\n* https://docs.docker.com/engine/userguide/eng-image/dockerfile_best-practices/#entrypoint\r\n* https://docs.docker.com/engine/reference/builder/#entrypoint\r\n\r\nWDYT? (cc [~ndeloof] )\r\n",
+                    "updateAuthor": {
+                        "self": "https://issues.jenkins-ci.org/rest/api/2/user?username=mgreau",
+                        "name": "mgreau",
+                        "key": "mgreau",
+                        "avatarUrls": {
+                            "48x48": "https://issues.jenkins-ci.org/secure/useravatar?ownerId=mgreau&avatarId=16261",
+                            "24x24": "https://issues.jenkins-ci.org/secure/useravatar?size=small&ownerId=mgreau&avatarId=16261",
+                            "16x16": "https://issues.jenkins-ci.org/secure/useravatar?size=xsmall&ownerId=mgreau&avatarId=16261",
+                            "32x32": "https://issues.jenkins-ci.org/secure/useravatar?size=medium&ownerId=mgreau&avatarId=16261"
+                        },
+                        "displayName": "Maxime GREAU",
+                        "active": true,
+                        "timeZone": "GMT"
+                    },
+                    "created": "2016-05-30T08:41:10.000+0000",
+                    "updated": "2016-05-30T08:41:10.000+0000"
+                },
+                {
+                    "self": "https://issues.jenkins-ci.org/rest/api/2/issue/168520/comment/259309",
+                    "id": "259309",
+                    "author": {
+                        "self": "https://issues.jenkins-ci.org/rest/api/2/user?username=ndeloof",
+                        "name": "ndeloof",
+                        "key": "ndeloof",
+                        "avatarUrls": {
+                            "48x48": "https://issues.jenkins-ci.org/secure/useravatar?ownerId=ndeloof&avatarId=10232",
+                            "24x24": "https://issues.jenkins-ci.org/secure/useravatar?size=small&ownerId=ndeloof&avatarId=10232",
+                            "16x16": "https://issues.jenkins-ci.org/secure/useravatar?size=xsmall&ownerId=ndeloof&avatarId=10232",
+                            "32x32": "https://issues.jenkins-ci.org/secure/useravatar?size=medium&ownerId=ndeloof&avatarId=10232"
+                        },
+                        "displayName": "Nicolas De Loof",
+                        "active": true,
+                        "timeZone": "Europe/Paris"
+                    },
+                    "body": "on https://docs.docker.com/engine/userguide/eng-image/dockerfile_best-practices/#entrypoint you have sample for postgres entrypoint script, which detect a valid postgres command or switch to plain `$@` execution. This is actually a requirement for official docker image to let user run with `bash` (or any other) command and execute it in replacement for the packaged tool. \r\n\r\nAlso see https://github.com/jenkinsci/docker/blob/master/jenkins.sh#L32\r\nwill be harder with maven as the argument is a maven phase, which can be arbitrary string :-\\\r\n\r\npossible workaround : give up with this plugin and use docker-slaves ! :)\r\n\r\n",
+                    "updateAuthor": {
+                        "self": "https://issues.jenkins-ci.org/rest/api/2/user?username=ndeloof",
+                        "name": "ndeloof",
+                        "key": "ndeloof",
+                        "avatarUrls": {
+                            "48x48": "https://issues.jenkins-ci.org/secure/useravatar?ownerId=ndeloof&avatarId=10232",
+                            "24x24": "https://issues.jenkins-ci.org/secure/useravatar?size=small&ownerId=ndeloof&avatarId=10232",
+                            "16x16": "https://issues.jenkins-ci.org/secure/useravatar?size=xsmall&ownerId=ndeloof&avatarId=10232",
+                            "32x32": "https://issues.jenkins-ci.org/secure/useravatar?size=medium&ownerId=ndeloof&avatarId=10232"
+                        },
+                        "displayName": "Nicolas De Loof",
+                        "active": true,
+                        "timeZone": "Europe/Paris"
+                    },
+                    "created": "2016-05-30T11:07:04.000+0000",
+                    "updated": "2016-05-30T11:07:04.000+0000"
+                },
+                {
+                    "self": "https://issues.jenkins-ci.org/rest/api/2/issue/168520/comment/259312",
+                    "id": "259312",
+                    "author": {
+                        "self": "https://issues.jenkins-ci.org/rest/api/2/user?username=ndeloof",
+                        "name": "ndeloof",
+                        "key": "ndeloof",
+                        "avatarUrls": {
+                            "48x48": "https://issues.jenkins-ci.org/secure/useravatar?ownerId=ndeloof&avatarId=10232",
+                            "24x24": "https://issues.jenkins-ci.org/secure/useravatar?size=small&ownerId=ndeloof&avatarId=10232",
+                            "16x16": "https://issues.jenkins-ci.org/secure/useravatar?size=xsmall&ownerId=ndeloof&avatarId=10232",
+                            "32x32": "https://issues.jenkins-ci.org/secure/useravatar?size=medium&ownerId=ndeloof&avatarId=10232"
+                        },
+                        "displayName": "Nicolas De Loof",
+                        "active": true,
+                        "timeZone": "Europe/Paris"
+                    },
+                    "body": "[~mgreau] I guess you could detect a command to be executed in replacement to a maven goal if it starts with '/'. \r\nplugin do actually run `/bin/cat`, and this is a reasonable constraint for user to provide full executable path if they want to bypass the entrypoint",
+                    "updateAuthor": {
+                        "self": "https://issues.jenkins-ci.org/rest/api/2/user?username=ndeloof",
+                        "name": "ndeloof",
+                        "key": "ndeloof",
+                        "avatarUrls": {
+                            "48x48": "https://issues.jenkins-ci.org/secure/useravatar?ownerId=ndeloof&avatarId=10232",
+                            "24x24": "https://issues.jenkins-ci.org/secure/useravatar?size=small&ownerId=ndeloof&avatarId=10232",
+                            "16x16": "https://issues.jenkins-ci.org/secure/useravatar?size=xsmall&ownerId=ndeloof&avatarId=10232",
+                            "32x32": "https://issues.jenkins-ci.org/secure/useravatar?size=medium&ownerId=ndeloof&avatarId=10232"
+                        },
+                        "displayName": "Nicolas De Loof",
+                        "active": true,
+                        "timeZone": "Europe/Paris"
+                    },
+                    "created": "2016-05-30T11:33:31.000+0000",
+                    "updated": "2016-05-30T11:33:31.000+0000"
+                }
+            ],
+            "maxResults": 4,
+            "total": 4,
+            "startAt": 0
+        },
+        "votes": {
+            "self": "https://issues.jenkins-ci.org/rest/api/2/issue/JENKINS-33149/votes",
+            "votes": 0,
+            "hasVoted": false
+        }
+    }
+}

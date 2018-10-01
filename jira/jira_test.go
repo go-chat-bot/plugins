@@ -5,12 +5,42 @@ import (
 	gojira "github.com/andygrunwald/go-jira"
 	"github.com/go-chat-bot/bot"
 	. "github.com/smartystreets/goconvey/convey"
+	"io/ioutil"
+	"net/http"
+	"net/http/httptest"
+	"strings"
 	"testing"
 )
 
+func setup() *httptest.Server {
+	ts := httptest.NewServer(http.HandlerFunc(
+		func(w http.ResponseWriter, r *http.Request) {
+			parts := strings.Split(r.URL.String(), "/")
+			fname := parts[len(parts)-1]
+			dat, err := ioutil.ReadFile("mocks/" + fname + ".json")
+			if err != nil {
+				fmt.Printf("No mock file %s.json", fname)
+				// provide empty data when file does not exist
+				return
+			}
+
+			fmt.Fprintf(w, "%s", dat)
+		},
+	))
+	baseURL = ts.URL
+	err := initJIRAClient()
+	if err != nil {
+		fmt.Print(err.Error())
+	}
+	return ts
+}
+
 func TestJira(t *testing.T) {
+	ts := setup()
+	defer ts.Close()
 	url = "https://example.atlassian.net/browse/"
 	projects["BOT"] = gojira.Project{}
+	projects["JENKINS"] = gojira.Project{}
 	projects["MON"] = gojira.Project{}
 	Convey("Given a text", t, func() {
 		cmd := &bot.PassiveCmd{}
@@ -24,21 +54,28 @@ func TestJira(t *testing.T) {
 		})
 
 		Convey("When the text match a jira issue syntax", func() {
-			cmd.Raw = "My name is go-bot, I am awesome. MON-965"
+			cmd.Raw = "My name is go-bot, I am awesome. JENKINS-33149"
+
 			s, err := jira(cmd)
 
 			So(err, ShouldBeNil)
-			So(<-s.Message, ShouldEqual, fmt.Sprintf("%s%s", url, "MON-965"))
+			So(<-s.Message, ShouldEqual,
+				"JENKINS-33149 (ndeloof, Closed): Images that specify an "+
+					"entrypoint can not be used as a build environment - "+
+					"https://example.atlassian.net/browse/JENKINS-33149")
 			So(<-s.Done, ShouldEqual, true)
 			So(s.Message, ShouldBeEmpty)
 		})
 
 		Convey("When the text has a jira issue in the midle of a word", func() {
-			cmd.Raw = "My name is goBOT-123"
+			cmd.Raw = "My name is goJENKINS-3314"
 			s, err := jira(cmd)
 
 			So(err, ShouldBeNil)
-			So(<-s.Message, ShouldEqual, fmt.Sprintf("%s%s", url, "BOT-123"))
+			So(<-s.Message, ShouldEqual,
+				"JENKINS-3314 (no assignee, Closed): <import file=\"...\"/>"+
+					" to inherit portions of configurations - "+
+					"https://example.atlassian.net/browse/JENKINS-3314")
 			So(<-s.Done, ShouldEqual, true)
 			So(s.Message, ShouldBeEmpty)
 		})
@@ -64,12 +101,18 @@ func TestJira(t *testing.T) {
 		})
 
 		Convey("When multiple jiras are referenced", func() {
-			cmd.Raw = "::BOT-122,BOT-234 and BOT-321"
+			cmd.Raw = "::JENKINS-3314,JENKINS-33149 and BOT-321"
 			s, err := jira(cmd)
 
 			So(err, ShouldBeNil)
-			So(<-s.Message, ShouldEqual, fmt.Sprintf("%s%s", url, "BOT-122"))
-			So(<-s.Message, ShouldEqual, fmt.Sprintf("%s%s", url, "BOT-234"))
+			So(<-s.Message, ShouldEqual,
+				"JENKINS-3314 (no assignee, Closed): <import file=\"...\"/>"+
+					" to inherit portions of configurations - "+
+					"https://example.atlassian.net/browse/JENKINS-3314")
+			So(<-s.Message, ShouldEqual,
+				"JENKINS-33149 (ndeloof, Closed): Images that specify an "+
+					"entrypoint can not be used as a build environment - "+
+					"https://example.atlassian.net/browse/JENKINS-33149")
 			So(<-s.Message, ShouldEqual, fmt.Sprintf("%s%s", url, "BOT-321"))
 			So(s.Message, ShouldBeEmpty)
 			So(<-s.Done, ShouldEqual, true)

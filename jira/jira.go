@@ -1,19 +1,23 @@
 package jira
 
 import (
+	"bytes"
 	"fmt"
 	gojira "github.com/andygrunwald/go-jira"
 	"github.com/go-chat-bot/bot"
 	"log"
 	"os"
 	"regexp"
+	"text/template"
 )
 
 const (
-	pattern    = ".*?([A-Z]+)-([0-9]+)\\b"
-	userEnv    = "JIRA_USER"
-	passEnv    = "JIRA_PASS"
-	baseURLEnv = "JIRA_BASE_URL"
+	pattern         = ".*?([A-Z]+)-([0-9]+)\\b"
+	userEnv         = "JIRA_USER"
+	passEnv         = "JIRA_PASS"
+	baseURLEnv      = "JIRA_BASE_URL"
+	defaultTemplate = "{{.Key}} ({{.Fields.Assignee.Key}}, {{.Fields.Status.Name}}): " +
+		"{{.Fields.Summary}} - {{.Self}}"
 )
 
 var (
@@ -55,6 +59,39 @@ func getIssues(text string) [][2]string {
 	return data
 }
 
+func provideDefaultValues(issue *gojira.Issue) {
+	if issue.Fields.Assignee == nil {
+		issue.Fields.Assignee = &gojira.User{Key: "no assignee"}
+	}
+	// we use Self as the web URL in template
+	issue.Self = url + issue.Key
+}
+
+func formatIssue(issueKey string, channel string) string {
+	defaultRet := url + issueKey
+	issue, _, err := client.Issue.Get(issueKey, nil)
+	if err != nil {
+		log.Printf("Failed getting issue %s info: %v\n", issueKey, err)
+		return defaultRet
+	}
+
+	tmpl, err := template.New("default").Parse(defaultTemplate)
+	if err != nil {
+		log.Printf("Failed formatting for %s: %v\n", issueKey, err)
+		return defaultRet
+	}
+
+	buf := &bytes.Buffer{}
+	provideDefaultValues(issue)
+
+	err = tmpl.Execute(buf, issue)
+	if err != nil {
+		log.Printf("Failed formatting for %s: %s\n", issueKey, err.Error())
+		return defaultRet
+	}
+	return buf.String()
+}
+
 func jira(cmd *bot.PassiveCmd) (bot.CmdResultV3, error) {
 	result := bot.CmdResultV3{
 		Message: make(chan string),
@@ -67,7 +104,7 @@ func jira(cmd *bot.PassiveCmd) (bot.CmdResultV3, error) {
 				key, num := issue[0], issue[1]
 				_, found := projects[key]
 				if found {
-					result.Message <- url + key + "-" + num
+					result.Message <- formatIssue(key+"-"+num, cmd.Channel)
 				}
 			}
 			result.Done <- true
@@ -79,12 +116,8 @@ func jira(cmd *bot.PassiveCmd) (bot.CmdResultV3, error) {
 	return result, nil
 }
 
-func init() {
+func initJIRAClient() error {
 	var err error
-	jiraUser = os.Getenv(userEnv)
-	jiraPass = os.Getenv(passEnv)
-	baseURL = os.Getenv(baseURLEnv)
-	url = baseURL + "/browse/"
 
 	tp := gojira.BasicAuthTransport{
 		Username: jiraUser,
@@ -94,6 +127,20 @@ func init() {
 	client, err = gojira.NewClient(tp.Client(), baseURL)
 	if err != nil {
 		log.Printf("Error initializing JIRA client: %v\n", err)
+		return err
+	}
+	return nil
+}
+
+func init() {
+	jiraUser = os.Getenv(userEnv)
+	jiraPass = os.Getenv(passEnv)
+	baseURL = os.Getenv(baseURLEnv)
+	url = baseURL + "/browse/"
+
+	err := initJIRAClient()
+	if err != nil {
+		log.Printf("Error querying JIRA for projects: %v\n", err)
 		return
 	}
 

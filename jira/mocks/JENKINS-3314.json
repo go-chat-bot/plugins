@@ -1,0 +1,309 @@
+{
+    "expand": "renderedFields,names,schema,operations,editmeta,changelog,versionedRepresentations",
+    "id": "133387",
+    "self": "https://issues.jenkins-ci.org/rest/api/2/issue/133387",
+    "key": "JENKINS-3314",
+    "fields": {
+        "issuetype": {
+            "self": "https://issues.jenkins-ci.org/rest/api/2/issuetype/2",
+            "id": "2",
+            "description": "A new feature of the product, which has yet to be developed.",
+            "iconUrl": "https://issues.jenkins-ci.org/secure/viewavatar?size=xsmall&avatarId=14681&avatarType=issuetype",
+            "name": "New Feature",
+            "subtask": false,
+            "avatarId": 14681
+        },
+        "project": {
+            "self": "https://issues.jenkins-ci.org/rest/api/2/project/10172",
+            "id": "10172",
+            "key": "JENKINS",
+            "name": "Jenkins",
+            "avatarUrls": {
+                "48x48": "https://issues.jenkins-ci.org/secure/projectavatar?pid=10172&avatarId=10152",
+                "24x24": "https://issues.jenkins-ci.org/secure/projectavatar?size=small&pid=10172&avatarId=10152",
+                "16x16": "https://issues.jenkins-ci.org/secure/projectavatar?size=xsmall&pid=10172&avatarId=10152",
+                "32x32": "https://issues.jenkins-ci.org/secure/projectavatar?size=medium&pid=10172&avatarId=10152"
+            }
+        },
+        "resolution": {
+            "self": "https://issues.jenkins-ci.org/rest/api/2/resolution/3",
+            "id": "3",
+            "description": "The problem is a duplicate of an existing issue.",
+            "name": "Duplicate"
+        },
+        "resolutiondate": "2009-03-28T14:25:25.000+0000",
+        "workratio": -1,
+        "lastViewed": null,
+        "watches": {
+            "self": "https://issues.jenkins-ci.org/rest/api/2/issue/JENKINS-3314/watchers",
+            "watchCount": 0,
+            "isWatching": false
+        },
+        "created": "2009-03-18T14:06:42.000+0000",
+        "priority": {
+            "self": "https://issues.jenkins-ci.org/rest/api/2/priority/2",
+            "iconUrl": "https://issues.jenkins-ci.org/images/icons/priorities/critical.svg",
+            "name": "Critical",
+            "id": "2"
+        },
+        "labels": [],
+        "issuelinks": [
+            {
+                "id": "14674",
+                "self": "https://issues.jenkins-ci.org/rest/api/2/issueLink/14674",
+                "type": {
+                    "id": "10000",
+                    "name": "Duplicate",
+                    "inward": "is duplicated by",
+                    "outward": "duplicates",
+                    "self": "https://issues.jenkins-ci.org/rest/api/2/issueLinkType/10000"
+                },
+                "outwardIssue": {
+                    "id": "133230",
+                    "key": "JENKINS-3157",
+                    "self": "https://issues.jenkins-ci.org/rest/api/2/issue/133230",
+                    "fields": {
+                        "summary": "Feature request: cascading project settings",
+                        "status": {
+                            "self": "https://issues.jenkins-ci.org/rest/api/2/status/1",
+                            "description": "The issue is open and ready for the assignee to start work on it.",
+                            "iconUrl": "https://issues.jenkins-ci.org/images/icons/statuses/open.png",
+                            "name": "Open",
+                            "id": "1",
+                            "statusCategory": {
+                                "self": "https://issues.jenkins-ci.org/rest/api/2/statuscategory/2",
+                                "id": 2,
+                                "key": "new",
+                                "colorName": "blue-gray",
+                                "name": "To Do"
+                            }
+                        },
+                        "priority": {
+                            "self": "https://issues.jenkins-ci.org/rest/api/2/priority/3",
+                            "iconUrl": "https://issues.jenkins-ci.org/images/icons/priorities/major.svg",
+                            "name": "Major",
+                            "id": "3"
+                        },
+                        "issuetype": {
+                            "self": "https://issues.jenkins-ci.org/rest/api/2/issuetype/2",
+                            "id": "2",
+                            "description": "A new feature of the product, which has yet to be developed.",
+                            "iconUrl": "https://issues.jenkins-ci.org/secure/viewavatar?size=xsmall&avatarId=14681&avatarType=issuetype",
+                            "name": "New Feature",
+                            "subtask": false,
+                            "avatarId": 14681
+                        }
+                    }
+                }
+            }
+        ],
+        "assignee": null,
+        "updated": "2011-02-10T19:13:54.000+0000",
+        "status": {
+            "self": "https://issues.jenkins-ci.org/rest/api/2/status/6",
+            "description": "The issue is considered finished, the resolution is correct. Issues which are closed can be reopened.",
+            "iconUrl": "https://issues.jenkins-ci.org/images/icons/statuses/closed.png",
+            "name": "Closed",
+            "id": "6",
+            "statusCategory": {
+                "self": "https://issues.jenkins-ci.org/rest/api/2/statuscategory/3",
+                "id": 3,
+                "key": "done",
+                "colorName": "green",
+                "name": "Done"
+            }
+        },
+        "components": [
+            {
+                "self": "https://issues.jenkins-ci.org/rest/api/2/component/15593",
+                "id": "15593",
+                "name": "core",
+                "description": "Jenkins core"
+            }
+        ],
+        "description": "I'm trying to realize a way to unify some of the configurations in multiple \nproject environment (hundreds of them). \nI was thinking about storing common configuration in common_config.xml and then \nimport it into the config.xml of the specific project. So it could look like:\n<project>\n<property name=\"projectname\" value=\"version\"/>...\n<import file=\"../common_config.xml\"/>\n</project>\nWhen the common_config.xml can be something like:\n<project>\n....\n<customWorkspace>C:\\Ivy\\apache-ivy-2.0.0\\src\\example\\multi-\nproject\\projects\\${projectname}</customWorkspace>\n<project/>\n\nBut it seems that neither import or property usage are working.\n\nWhen trying to import I'm getting:\nMar 18, 2009 4:30:59 PM hudson.util.RobustReflectionConverter doUnmarshal\nWARNING: Skipping a non-existent field import\ncom.thoughtworks.xstream.converters.reflection.NonExistentFieldException: No suc\nh field hudson.model.FreeStyleProject.import\n        at com.thoughtworks.xstream.converters.reflection.FieldDictionary.field(\nFieldDictionary.java:106)\n        at com.thoughtworks.xstream.converters.reflection.PureJavaReflectionProv\nider.getFieldType(PureJavaReflectionProvider.java:151)\n        at hudson.util.RobustReflectionConverter.determineType(RobustReflectionC\nonverter.java:327)\n        at hudson.util.RobustReflectionConverter.doUnmarshal(RobustReflectionCon\nverter.java:218)\n        at hudson.util.RobustReflectionConverter.unmarshal(RobustReflectionConve\nrter.java:173)\n        at com.thoughtworks.xstream.core.TreeUnmarshaller.convert(TreeUnmarshall\ner.java:81)\n        at com.thoughtworks.xstream.core.AbstractReferenceUnmarshaller.convert(A\nbstractReferenceUnmarshaller.java:55)\n        at com.thoughtworks.xstream.core.TreeUnmarshaller.convertAnother(TreeUnm\narshaller.java:75)\n        at com.thoughtworks.xstream.core.TreeUnmarshaller.convertAnother(TreeUnm\narshaller.java:59)\n        at com.thoughtworks.xstream.core.TreeUnmarshaller.start(TreeUnmarshaller\n.java:142)\n        at com.thoughtworks.xstream.core.AbstractTreeMarshallingStrategy.unmarsh\nal(AbstractTreeMarshallingStrategy.java:33)\n        at com.thoughtworks.xstream.XStream.unmarshal(XStream.java:931)\n        at hudson.util.XStream2.unmarshal(XStream2.java:65)\n        at com.thoughtworks.xstream.XStream.unmarshal(XStream.java:917)\n        at com.thoughtworks.xstream.XStream.fromXML(XStream.java:861)\n        at hudson.XmlFile.read(XmlFile.java:126)\n        at hudson.model.Items.load(Items.java:109)\n        at hudson.model.Hudson.load(Hudson.java:1837)\n        at hudson.model.Hudson.access$500(Hudson.java:191)\n        at hudson.model.Hudson$10.run(Hudson.java:2439)\nMar 18, 2009 4:30:59 PM hudson.model.Hudson load\nWARNING: Failed to load C:\\Documents and Settings\\username\\.hudson\\jobs\\version\njava.lang.NullPointerException\n        at hudson.model.Project.updateTransientActions(Project.java:198)\n        at hudson.model.AbstractProject.onLoad(AbstractProject.java:199)\n        at hudson.model.Project.onLoad(Project.java:85)\n        at hudson.model.Items.load(Items.java:110)\n        at hudson.model.Hudson.load(Hudson.java:1837)\n        at hudson.model.Hudson.access$500(Hudson.java:191)\n        at hudson.model.Hudson$10.run(Hudson.java:2439)\n******************************************************************\n\nWhen i was testing the property usage I've got:\n\nWARNING: Skipping a non-existent field property\ncom.thoughtworks.xstream.converters.reflection.NonExistentFieldException: No suc\nh field hudson.model.FreeStyleProject.property\n        at com.thoughtworks.xstream.converters.reflection.FieldDictionary.field(\nFieldDictionary.java:106)\n        at com.thoughtworks.xstream.converters.reflection.PureJavaReflectionProv\nider.getFieldType(PureJavaReflectionProvider.java:151)\n        at hudson.util.RobustReflectionConverter.determineType(RobustReflectionC\nonverter.java:327)\n        at hudson.util.RobustReflectionConverter.doUnmarshal(RobustReflectionCon\nverter.java:218)\n        at hudson.util.RobustReflectionConverter.unmarshal(RobustReflectionConve\nrter.java:173)\n        at com.thoughtworks.xstream.core.TreeUnmarshaller.convert(TreeUnmarshall\ner.java:81)\n        at com.thoughtworks.xstream.core.AbstractReferenceUnmarshaller.convert(A\nbstractReferenceUnmarshaller.java:55)\n        at com.thoughtworks.xstream.core.TreeUnmarshaller.convertAnother(TreeUnm\narshaller.java:75)\n        at com.thoughtworks.xstream.core.TreeUnmarshaller.convertAnother(TreeUnm\narshaller.java:59)\n        at com.thoughtworks.xstream.core.TreeUnmarshaller.start(TreeUnmarshaller\n.java:142)\n        at com.thoughtworks.xstream.core.AbstractTreeMarshallingStrategy.unmarsh\nal(AbstractTreeMarshallingStrategy.java:33)\n        at com.thoughtworks.xstream.XStream.unmarshal(XStream.java:931)\n        at hudson.util.XStream2.unmarshal(XStream2.java:65)\n        at com.thoughtworks.xstream.XStream.unmarshal(XStream.java:917)\n        at com.thoughtworks.xstream.XStream.fromXML(XStream.java:861)\n        at hudson.XmlFile.read(XmlFile.java:126)\n        at hudson.model.Items.load(Items.java:109)\n        at hudson.model.Hudson.load(Hudson.java:1837)\n        at hudson.model.Hudson.<init>(Hudson.java:513)\n        at hudson.WebAppMain$2.run(WebAppMain.java:190)\nMar 18, 2009 4:51:17 PM hudson.ivy.IvyBuildTrigger$1 doInIvyContext\n\nWhich causes:\n\nWARNING: Parsing error while reading the ivy file C:\\Ivy\\apache-ivy-2.0.0\\src\\ex\nample\\multi-project\\projects\\${projectname}\\ivy.xml",
+        "attachment": [],
+        "summary": "<import file=\"...\"/> to inherit portions of configurations",
+        "creator": {
+            "self": "https://issues.jenkins-ci.org/rest/api/2/user?username=eguess74",
+            "name": "eguess74",
+            "key": "eguess74",
+            "avatarUrls": {
+                "48x48": "https://issues.jenkins-ci.org/secure/useravatar?avatarId=10292",
+                "24x24": "https://issues.jenkins-ci.org/secure/useravatar?size=small&avatarId=10292",
+                "16x16": "https://issues.jenkins-ci.org/secure/useravatar?size=xsmall&avatarId=10292",
+                "32x32": "https://issues.jenkins-ci.org/secure/useravatar?size=medium&avatarId=10292"
+            },
+            "displayName": "eguess74",
+            "active": true,
+            "timeZone": "GMT"
+        },
+        "reporter": {
+            "self": "https://issues.jenkins-ci.org/rest/api/2/user?username=eguess74",
+            "name": "eguess74",
+            "key": "eguess74",
+            "avatarUrls": {
+                "48x48": "https://issues.jenkins-ci.org/secure/useravatar?avatarId=10292",
+                "24x24": "https://issues.jenkins-ci.org/secure/useravatar?size=small&avatarId=10292",
+                "16x16": "https://issues.jenkins-ci.org/secure/useravatar?size=xsmall&avatarId=10292",
+                "32x32": "https://issues.jenkins-ci.org/secure/useravatar?size=medium&avatarId=10292"
+            },
+            "displayName": "eguess74",
+            "active": true,
+            "timeZone": "GMT"
+        },
+        "environment": "Platform: PC, OS: All",
+        "comment": {
+            "comments": [
+                {
+                    "self": "https://issues.jenkins-ci.org/rest/api/2/issue/133387/comment/129671",
+                    "id": "129671",
+                    "author": {
+                        "self": "https://issues.jenkins-ci.org/rest/api/2/user?username=jglick",
+                        "name": "jglick",
+                        "key": "jglick",
+                        "avatarUrls": {
+                            "48x48": "https://issues.jenkins-ci.org/secure/useravatar?ownerId=jglick&avatarId=15877",
+                            "24x24": "https://issues.jenkins-ci.org/secure/useravatar?size=small&ownerId=jglick&avatarId=15877",
+                            "16x16": "https://issues.jenkins-ci.org/secure/useravatar?size=xsmall&ownerId=jglick&avatarId=15877",
+                            "32x32": "https://issues.jenkins-ci.org/secure/useravatar?size=medium&ownerId=jglick&avatarId=15877"
+                        },
+                        "displayName": "Jesse Glick",
+                        "active": true,
+                        "timeZone": "America/New_York"
+                    },
+                    "body": "Do you have some reason to believe that\n\n<import file=\"../common_config.xml\"/>\n\nwas ever intended to work? Ant has some similar syntax, but XML files in general\ndo not.\n\nAFAIK there is no support for inheriting settings in Hudson projects. There was\nsome RFE open for this, I think, but I cannot find it now.",
+                    "updateAuthor": {
+                        "self": "https://issues.jenkins-ci.org/rest/api/2/user?username=jglick",
+                        "name": "jglick",
+                        "key": "jglick",
+                        "avatarUrls": {
+                            "48x48": "https://issues.jenkins-ci.org/secure/useravatar?ownerId=jglick&avatarId=15877",
+                            "24x24": "https://issues.jenkins-ci.org/secure/useravatar?size=small&ownerId=jglick&avatarId=15877",
+                            "16x16": "https://issues.jenkins-ci.org/secure/useravatar?size=xsmall&ownerId=jglick&avatarId=15877",
+                            "32x32": "https://issues.jenkins-ci.org/secure/useravatar?size=medium&ownerId=jglick&avatarId=15877"
+                        },
+                        "displayName": "Jesse Glick",
+                        "active": true,
+                        "timeZone": "America/New_York"
+                    },
+                    "created": "2009-03-18T14:57:30.000+0000",
+                    "updated": "2009-03-18T14:57:30.000+0000"
+                },
+                {
+                    "self": "https://issues.jenkins-ci.org/rest/api/2/issue/133387/comment/129672",
+                    "id": "129672",
+                    "author": {
+                        "self": "https://issues.jenkins-ci.org/rest/api/2/user?username=eguess74",
+                        "name": "eguess74",
+                        "key": "eguess74",
+                        "avatarUrls": {
+                            "48x48": "https://issues.jenkins-ci.org/secure/useravatar?avatarId=10292",
+                            "24x24": "https://issues.jenkins-ci.org/secure/useravatar?size=small&avatarId=10292",
+                            "16x16": "https://issues.jenkins-ci.org/secure/useravatar?size=xsmall&avatarId=10292",
+                            "32x32": "https://issues.jenkins-ci.org/secure/useravatar?size=medium&avatarId=10292"
+                        },
+                        "displayName": "eguess74",
+                        "active": true,
+                        "timeZone": "GMT"
+                    },
+                    "body": "i'm so used to such syntax in ant (both import and variables), so I probably  do \nexpect it to work everywhere;) I also saw the same functionality supported by \nCruiseControl. \nIf it was not intended from the beginning then this should be transformed into \nfeature request. \nI think this will add a lot to Hudson usability for large scale environments.",
+                    "updateAuthor": {
+                        "self": "https://issues.jenkins-ci.org/rest/api/2/user?username=eguess74",
+                        "name": "eguess74",
+                        "key": "eguess74",
+                        "avatarUrls": {
+                            "48x48": "https://issues.jenkins-ci.org/secure/useravatar?avatarId=10292",
+                            "24x24": "https://issues.jenkins-ci.org/secure/useravatar?size=small&avatarId=10292",
+                            "16x16": "https://issues.jenkins-ci.org/secure/useravatar?size=xsmall&avatarId=10292",
+                            "32x32": "https://issues.jenkins-ci.org/secure/useravatar?size=medium&avatarId=10292"
+                        },
+                        "displayName": "eguess74",
+                        "active": true,
+                        "timeZone": "GMT"
+                    },
+                    "created": "2009-03-18T15:40:29.000+0000",
+                    "updated": "2009-03-18T15:40:29.000+0000"
+                },
+                {
+                    "self": "https://issues.jenkins-ci.org/rest/api/2/issue/133387/comment/129673",
+                    "id": "129673",
+                    "author": {
+                        "self": "https://issues.jenkins-ci.org/rest/api/2/user?username=jglick",
+                        "name": "jglick",
+                        "key": "jglick",
+                        "avatarUrls": {
+                            "48x48": "https://issues.jenkins-ci.org/secure/useravatar?ownerId=jglick&avatarId=15877",
+                            "24x24": "https://issues.jenkins-ci.org/secure/useravatar?size=small&ownerId=jglick&avatarId=15877",
+                            "16x16": "https://issues.jenkins-ci.org/secure/useravatar?size=xsmall&ownerId=jglick&avatarId=15877",
+                            "32x32": "https://issues.jenkins-ci.org/secure/useravatar?size=medium&ownerId=jglick&avatarId=15877"
+                        },
+                        "displayName": "Jesse Glick",
+                        "active": true,
+                        "timeZone": "America/New_York"
+                    },
+                    "body": "Like I said, probably a duplicate, I just am not sure where to find the original\nnow.",
+                    "updateAuthor": {
+                        "self": "https://issues.jenkins-ci.org/rest/api/2/user?username=jglick",
+                        "name": "jglick",
+                        "key": "jglick",
+                        "avatarUrls": {
+                            "48x48": "https://issues.jenkins-ci.org/secure/useravatar?ownerId=jglick&avatarId=15877",
+                            "24x24": "https://issues.jenkins-ci.org/secure/useravatar?size=small&ownerId=jglick&avatarId=15877",
+                            "16x16": "https://issues.jenkins-ci.org/secure/useravatar?size=xsmall&ownerId=jglick&avatarId=15877",
+                            "32x32": "https://issues.jenkins-ci.org/secure/useravatar?size=medium&ownerId=jglick&avatarId=15877"
+                        },
+                        "displayName": "Jesse Glick",
+                        "active": true,
+                        "timeZone": "America/New_York"
+                    },
+                    "created": "2009-03-18T15:55:03.000+0000",
+                    "updated": "2009-03-18T15:55:03.000+0000"
+                },
+                {
+                    "self": "https://issues.jenkins-ci.org/rest/api/2/issue/133387/comment/129674",
+                    "id": "129674",
+                    "author": {
+                        "self": "https://issues.jenkins-ci.org/rest/api/2/user?username=mdonohue",
+                        "name": "mdonohue",
+                        "key": "mdonohue",
+                        "avatarUrls": {
+                            "48x48": "https://issues.jenkins-ci.org/secure/useravatar?avatarId=10292",
+                            "24x24": "https://issues.jenkins-ci.org/secure/useravatar?size=small&avatarId=10292",
+                            "16x16": "https://issues.jenkins-ci.org/secure/useravatar?size=xsmall&avatarId=10292",
+                            "32x32": "https://issues.jenkins-ci.org/secure/useravatar?size=medium&avatarId=10292"
+                        },
+                        "displayName": "mdonohue",
+                        "active": true,
+                        "timeZone": "America/Los_Angeles"
+                    },
+                    "body": "Duplicate of issue 3157 - it's in the top 10 vote getters.\n\n*** This issue has been marked as a duplicate of 3157 ***",
+                    "updateAuthor": {
+                        "self": "https://issues.jenkins-ci.org/rest/api/2/user?username=mdonohue",
+                        "name": "mdonohue",
+                        "key": "mdonohue",
+                        "avatarUrls": {
+                            "48x48": "https://issues.jenkins-ci.org/secure/useravatar?avatarId=10292",
+                            "24x24": "https://issues.jenkins-ci.org/secure/useravatar?size=small&avatarId=10292",
+                            "16x16": "https://issues.jenkins-ci.org/secure/useravatar?size=xsmall&avatarId=10292",
+                            "32x32": "https://issues.jenkins-ci.org/secure/useravatar?size=medium&avatarId=10292"
+                        },
+                        "displayName": "mdonohue",
+                        "active": true,
+                        "timeZone": "America/Los_Angeles"
+                    },
+                    "created": "2009-03-28T14:25:25.000+0000",
+                    "updated": "2009-03-28T14:25:25.000+0000"
+                }
+            ],
+            "maxResults": 4,
+            "total": 4,
+            "startAt": 0
+        },
+        "votes": {
+            "self": "https://issues.jenkins-ci.org/rest/api/2/issue/JENKINS-3314/votes",
+            "votes": 0,
+            "hasVoted": false
+        }
+    }
+}
