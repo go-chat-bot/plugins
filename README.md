@@ -22,7 +22,8 @@ These commands differ from the active commands as they are executed for every te
 
 * **url**: Detects url and gets it's title (very naive implementation, works sometimes)
 * **catfacts**: Tells a random cat fact based on some cat keywords
-* **jira**: Detects jira issue numbers and posts the url (necessary to configure the JIRA URL)
+* **jira**: Detects jira issue numbers and posts information about it. Necessary
+  to configure. See README.md in jira subdirectory for details
 * **chucknorris**: Shows a random chuck norris quote every time the word "chuck" is mentioned
 
 ### Periodic (triggers)

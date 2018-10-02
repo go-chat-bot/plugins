@@ -11,7 +11,6 @@ import (
 
 const (
 	pattern    = ".*?([A-Z]+)-([0-9]+)\\b"
-	env        = "JIRA_ISSUES_URL"
 	userEnv    = "JIRA_USER"
 	passEnv    = "JIRA_PASS"
 	baseURLEnv = "JIRA_BASE_URL"
@@ -82,10 +81,10 @@ func jira(cmd *bot.PassiveCmd) (bot.CmdResultV3, error) {
 
 func init() {
 	var err error
-	url = os.Getenv(env)
 	jiraUser = os.Getenv(userEnv)
 	jiraPass = os.Getenv(passEnv)
 	baseURL = os.Getenv(baseURLEnv)
+	url = baseURL + "/browse/"
 
 	tp := gojira.BasicAuthTransport{
 		Username: jiraUser,
