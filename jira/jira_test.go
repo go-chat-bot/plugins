@@ -2,6 +2,7 @@ package jira
 
 import (
 	"fmt"
+	gojira "github.com/andygrunwald/go-jira"
 	"github.com/go-chat-bot/bot"
 	. "github.com/smartystreets/goconvey/convey"
 	"testing"
@@ -9,6 +10,8 @@ import (
 
 func TestJira(t *testing.T) {
 	url = "https://example.atlassian.net/browse/"
+	projects["BOT"] = gojira.Project{}
+	projects["MON"] = gojira.Project{}
 	Convey("Given a text", t, func() {
 		cmd := &bot.PassiveCmd{}
 		Convey("When the text does not match a jira issue syntax", func() {
@@ -16,7 +19,8 @@ func TestJira(t *testing.T) {
 			s, err := jira(cmd)
 
 			So(err, ShouldBeNil)
-			So(s, ShouldEqual, "")
+			So(<-s.Done, ShouldEqual, true)
+			So(s.Message, ShouldBeEmpty)
 		})
 
 		Convey("When the text match a jira issue syntax", func() {
@@ -24,7 +28,9 @@ func TestJira(t *testing.T) {
 			s, err := jira(cmd)
 
 			So(err, ShouldBeNil)
-			So(s, ShouldEqual, fmt.Sprintf("%s%s", url, "MON-965"))
+			So(<-s.Message, ShouldEqual, fmt.Sprintf("%s%s", url, "MON-965"))
+			So(<-s.Done, ShouldEqual, true)
+			So(s.Message, ShouldBeEmpty)
 		})
 
 		Convey("When the text has a jira issue in the midle of a word", func() {
@@ -32,7 +38,9 @@ func TestJira(t *testing.T) {
 			s, err := jira(cmd)
 
 			So(err, ShouldBeNil)
-			So(s, ShouldEqual, "")
+			So(<-s.Message, ShouldEqual, fmt.Sprintf("%s%s", url, "BOT-123"))
+			So(<-s.Done, ShouldEqual, true)
+			So(s.Message, ShouldBeEmpty)
 		})
 
 		Convey("When the text has a jira issue syntax with only two numbers", func() {
@@ -40,7 +48,9 @@ func TestJira(t *testing.T) {
 			s, err := jira(cmd)
 
 			So(err, ShouldBeNil)
-			So(s, ShouldEqual, fmt.Sprintf("%s%s", url, "BOT-12"))
+			So(<-s.Message, ShouldEqual, fmt.Sprintf("%s%s", url, "BOT-12"))
+			So(<-s.Done, ShouldEqual, true)
+			So(s.Message, ShouldBeEmpty)
 		})
 
 		Convey("When the jira issue isn't preceeded by space", func() {
@@ -48,7 +58,30 @@ func TestJira(t *testing.T) {
 			s, err := jira(cmd)
 
 			So(err, ShouldBeNil)
-			So(s, ShouldEqual, "")
+			So(<-s.Message, ShouldEqual, fmt.Sprintf("%s%s", url, "BOT-122"))
+			So(<-s.Done, ShouldEqual, true)
+			So(s.Message, ShouldBeEmpty)
+		})
+
+		Convey("When multiple jiras are referenced", func() {
+			cmd.Raw = "::BOT-122,BOT-234 and BOT-321"
+			s, err := jira(cmd)
+
+			So(err, ShouldBeNil)
+			So(<-s.Message, ShouldEqual, fmt.Sprintf("%s%s", url, "BOT-122"))
+			So(<-s.Message, ShouldEqual, fmt.Sprintf("%s%s", url, "BOT-234"))
+			So(<-s.Message, ShouldEqual, fmt.Sprintf("%s%s", url, "BOT-321"))
+			So(s.Message, ShouldBeEmpty)
+			So(<-s.Done, ShouldEqual, true)
+		})
+
+		Convey("When jira from non-existing project is mentioned", func() {
+			cmd.Raw = "I saw this NON-123 issue once!"
+			s, err := jira(cmd)
+
+			So(err, ShouldBeNil)
+			So(s.Message, ShouldBeEmpty)
+			So(<-s.Done, ShouldEqual, true)
 		})
 	})
 }
