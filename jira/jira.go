@@ -2,6 +2,7 @@ package jira
 
 import (
 	"bytes"
+	"encoding/json"
 	"fmt"
 	gojira "github.com/andygrunwald/go-jira"
 	"github.com/go-chat-bot/bot"
@@ -13,28 +14,34 @@ import (
 )
 
 const (
-	pattern            = ".*?([A-Z]+)-([0-9]+)\\b"
-	userEnv            = "JIRA_USER"
-	passEnv            = "JIRA_PASS"
-	baseURLEnv         = "JIRA_BASE_URL"
-	channelTemplateEnv = "JIRA_CHAN_TEMPL_"
-	defaultTemplate    = "{{.Key}} ({{.Fields.Assignee.Key}}, {{.Fields.Status.Name}}): " +
+	pattern           = ".*?([A-Z]+)-([0-9]+)\\b"
+	userEnv           = "JIRA_USER"
+	passEnv           = "JIRA_PASS"
+	baseURLEnv        = "JIRA_BASE_URL"
+	channelConfigEnv  = "JIRA_CONFIG_FILE"
+	notifyIntervalEnv = "JIRA_NOTIFY_INTERVAL"
+	defaultTemplate   = "{{.Key}} ({{.Fields.Assignee.Key}}, {{.Fields.Status.Name}}): " +
 		"{{.Fields.Summary}} - {{.Self}}"
 )
 
 var (
-	url            string
-	baseURL        string
-	jiraUser       string
-	jiraPass       string
-	projects       map[string]gojira.Project
-	channelConfigs map[string]channelConfig
-	client         *gojira.Client
-	re             = regexp.MustCompile(pattern)
+	url             string
+	baseURL         string
+	jiraUser        string
+	jiraPass        string
+	projects        map[string]gojira.Project
+	channelConfigs  map[string]channelConfig
+	notifyNewConfig map[string][]string
+	notifyResConfig map[string][]string
+	client          *gojira.Client
+	re              = regexp.MustCompile(pattern)
 )
 
 type channelConfig struct {
-	issueTemplate string
+	Channel        string   `json:"channel"`
+	Template       string   `json:"template,omitempty"`       // template format for issues being posted
+	NotifyNew      []string `json:"notifyNew,omitempty"`      // list of JIRA projects to watch for new issues
+	NotifyResolved []string `json:"notifyResolved,omitempty"` // list of JIRA projects to watch for resolved issues
 }
 
 func getProjects() (map[string]gojira.Project, error) {
@@ -80,7 +87,7 @@ func formatIssue(issue *gojira.Issue, channel string) string {
 	templ := defaultTemplate
 	config, found := channelConfigs[channel]
 	if found {
-		templ = config.issueTemplate
+		templ = config.Template
 	}
 
 	tmpl, err := template.New("default").Parse(templ)
@@ -147,19 +154,40 @@ func initJIRAClient() error {
 	return nil
 }
 
-func loadChannelConfigs() error {
+func loadChannelConfigs(filename string) error {
 	channelConfigs = make(map[string]channelConfig)
-	for _, value := range os.Environ() {
-		if !strings.HasPrefix(value, channelTemplateEnv) {
+	notifyNewConfig = make(map[string][]string)
+	notifyResConfig = make(map[string][]string)
+
+	file, err := os.Open(filename)
+	if err != nil {
+		log.Printf("Failed opening configuration file %s: %v\n", filename, err)
+		return err
+	}
+	defer file.Close()
+	decoder := json.NewDecoder(file)
+	configs := make([]channelConfig, 0)
+	err = decoder.Decode(&configs)
+	if err != nil {
+		log.Printf("Error loading configuration: %v\n", err)
+		return err
+	}
+	for _, chanConf := range configs {
+		if chanConf.Channel == "" {
+			log.Println("Configuration without channel found. Skipping")
 			continue
 		}
-		split := strings.SplitN(value, "=", 2)
-		channel := strings.TrimPrefix(split[0], channelTemplateEnv)
-		if channel[0] != '#' {
-			channel = "#" + channel
+		if chanConf.Template == "" {
+			chanConf.Template = defaultTemplate
 		}
-		channelConfigs[channel] = channelConfig{
-			issueTemplate: split[1],
+		channelConfigs[chanConf.Channel] = chanConf
+		for _, project := range chanConf.NotifyNew {
+			notifyNewConfig[project] = append(notifyNewConfig[project],
+				chanConf.Channel)
+		}
+		for _, project := range chanConf.NotifyResolved {
+			notifyResConfig[project] = append(notifyResConfig[project],
+				chanConf.Channel)
 		}
 	}
 	return nil
@@ -169,6 +197,7 @@ func init() {
 	jiraUser = os.Getenv(userEnv)
 	jiraPass = os.Getenv(passEnv)
 	baseURL = os.Getenv(baseURLEnv)
+	confFile := os.Getenv(channelConfigEnv)
 	url = baseURL + "/browse/"
 
 	err := initJIRAClient()
@@ -177,10 +206,11 @@ func init() {
 		return
 	}
 
-	err = loadChannelConfigs()
-
-	if err != nil {
-		log.Printf("Error loading channel configuration (non-fatal): %v\n", err)
+	if confFile != "" {
+		err = loadChannelConfigs(confFile)
+		if err != nil {
+			log.Printf("Error loading channel configuration (non-fatal): %v\n", err)
+		}
 	}
 
 	_, err = getProjects()

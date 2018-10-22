@@ -10,7 +10,6 @@ import (
 	"net/http/httptest"
 	"strings"
 	"testing"
-	"os"
 )
 
 func setup() *httptest.Server {
@@ -130,56 +129,99 @@ func TestJira(t *testing.T) {
 	})
 }
 
-
 func TestChannelConfig(t *testing.T) {
 
 	Convey("Given environment variables", t, func() {
-		Convey("When there is no channel specific config", func() {
-			os.Clearenv()
-			loadChannelConfigs()
-
-			So(channelConfigs, ShouldBeEmpty)
-		})
-
 		Convey("When there is correct channel template config", func() {
-			os.Clearenv()
-			os.Setenv("JIRA_CHAN_TEMPL_chan1", "{{.Self}}")
-			loadChannelConfigs()
+			loadChannelConfigs("mocks/config1.json")
 
 			So(len(channelConfigs), ShouldEqual, 1)
 
 			conf, ok := channelConfigs["#chan1"]
 			So(ok, ShouldEqual, true)
-			So(conf.issueTemplate, ShouldEqual, "{{.Self}}")
-		})
-
-		Convey("When there are is correct channel template config with #", func() {
-			os.Clearenv()
-			os.Setenv("JIRA_CHAN_TEMPL_#chan2", "{{.Self}}")
-			loadChannelConfigs()
-
-			So(len(channelConfigs), ShouldEqual, 1)
-
-			conf, ok := channelConfigs["#chan2"]
-			So(ok, ShouldEqual, true)
-			So(conf.issueTemplate, ShouldEqual, "{{.Self}}")
+			So(conf.Template, ShouldEqual, "{{.Self}}")
 		})
 
 		Convey("When there are more channel configurations", func() {
-			os.Clearenv()
-			os.Setenv("JIRA_CHAN_TEMPL_#chan1", "{{.Self}} - 1")
-			os.Setenv("JIRA_CHAN_TEMPL_#chan2", "{{.Self}} - 2")
-			loadChannelConfigs()
+			loadChannelConfigs("mocks/config2.json")
 
 			So(len(channelConfigs), ShouldEqual, 2)
 
 			conf, ok := channelConfigs["#chan1"]
 			So(ok, ShouldEqual, true)
-			So(conf.issueTemplate, ShouldEqual, "{{.Self}} - 1")
+			So(conf.Template, ShouldEqual, "{{.Self}} - 1")
 
 			conf, ok = channelConfigs["#chan2"]
 			So(ok, ShouldEqual, true)
-			So(conf.issueTemplate, ShouldEqual, "{{.Self}} - 2")
+			So(conf.Template, ShouldEqual, "{{.Self}} - 2")
+		})
+
+		Convey("When there is channel notification config", func() {
+			loadChannelConfigs("mocks/config3.json")
+
+			So(notifyNewConfig, ShouldHaveLength, 1)
+
+			conf, ok := notifyNewConfig["PROJ1"]
+			So(ok, ShouldEqual, true)
+			So(conf, ShouldHaveLength, 1)
+			So(conf, ShouldContain, "#chan1")
+		})
+
+		Convey("When there is channel notification config with many projects", func() {
+			loadChannelConfigs("mocks/config4.json")
+
+			So(notifyNewConfig, ShouldHaveLength, 2)
+
+			conf, ok := notifyNewConfig["PROJ1"]
+			So(ok, ShouldEqual, true)
+			So(conf, ShouldHaveLength, 1)
+			So(conf, ShouldContain, "#chan1")
+
+			conf, ok = notifyNewConfig["PROJ2"]
+			So(ok, ShouldEqual, true)
+			So(conf, ShouldHaveLength, 1)
+			So(conf, ShouldContain, "#chan1")
+		})
+
+		Convey("When there is multiple channel notifications with many projects", func() {
+			loadChannelConfigs("mocks/config5.json")
+
+			So(notifyNewConfig, ShouldHaveLength, 3)
+
+			conf, ok := notifyNewConfig["PROJ1"]
+			So(ok, ShouldEqual, true)
+			So(conf, ShouldHaveLength, 2)
+			So(conf, ShouldContain, "#chan1")
+			So(conf, ShouldContain, "#chan2")
+
+			conf, ok = notifyNewConfig["PROJ2"]
+			So(ok, ShouldEqual, true)
+			So(conf, ShouldHaveLength, 1)
+			So(conf, ShouldContain, "#chan1")
+
+			conf, ok = notifyNewConfig["PROJ3"]
+			So(ok, ShouldEqual, true)
+			So(conf, ShouldHaveLength, 1)
+			So(conf, ShouldContain, "#chan2")
+
+			So(notifyResConfig, ShouldHaveLength, 3)
+
+			conf, ok = notifyResConfig["PROJ1"]
+			So(ok, ShouldEqual, true)
+			So(conf, ShouldHaveLength, 1)
+			So(conf, ShouldContain, "#chan1")
+
+			conf, ok = notifyResConfig["PROJ2"]
+			So(ok, ShouldEqual, true)
+			So(conf, ShouldHaveLength, 1)
+			So(conf, ShouldContain, "#chan2")
+
+			conf, ok = notifyResConfig["PROJ3"]
+			So(ok, ShouldEqual, true)
+			So(conf, ShouldHaveLength, 1)
+			So(conf, ShouldContain, "#chan2")
+
 		})
 	})
+
 }
