@@ -9,6 +9,7 @@ import (
 	"log"
 	"os"
 	"regexp"
+	"strconv"
 	"strings"
 	"text/template"
 )
@@ -35,6 +36,14 @@ var (
 	notifyResConfig map[string][]string
 	client          *gojira.Client
 	re              = regexp.MustCompile(pattern)
+	newJQL          = "project in (%s) " +
+		"AND resolution = Unresolved " +
+		"AND created > '-%dm' " +
+		"ORDER BY key ASC"
+	resolvedJQL = "project in (%s) " +
+		"AND resolved > '-%dm' " +
+		"ORDER BY key ASC"
+	notifyInterval int
 )
 
 type channelConfig struct {
@@ -138,6 +147,70 @@ func jira(cmd *bot.PassiveCmd) (bot.CmdResultV3, error) {
 	return result, nil
 }
 
+func periodicJIRANotifyNew() (ret []bot.CmdResult, err error) {
+	newProjectKeys := make([]string, 0, len(notifyNewConfig))
+	for k := range notifyNewConfig {
+		newProjectKeys = append(newProjectKeys, k)
+	}
+
+	query := fmt.Sprintf(newJQL, strings.Join(newProjectKeys, ","),
+		notifyInterval)
+	log.Printf("New issues query: %s", query)
+	newIssues, _, err := client.Issue.Search(query, nil)
+	if err != nil {
+		log.Printf("Error querying JIRA for new issues: %v\n", err)
+		return nil, err
+	}
+	for _, issue := range newIssues {
+		channels := notifyNewConfig[issue.Fields.Project.Key]
+		for _, notifyChan := range channels {
+			log.Printf("Notifying %s about new %s %s", notifyChan,
+				issue.Fields.Type.Name,
+				issue.Key)
+			line := fmt.Sprintf("New %s: %s", issue.Fields.Type.Name,
+				formatIssue(&issue, notifyChan))
+			ret = append(ret, bot.CmdResult{
+				Message: line,
+				Channel: notifyChan,
+			})
+		}
+	}
+
+	return ret, nil
+}
+
+func periodicJIRANotifyResolved() (ret []bot.CmdResult, err error) {
+	resolvedProjectKeys := make([]string, 0, len(notifyResConfig))
+	for k := range notifyResConfig {
+		resolvedProjectKeys = append(resolvedProjectKeys, k)
+	}
+
+	query := fmt.Sprintf(resolvedJQL, strings.Join(resolvedProjectKeys, ","),
+		notifyInterval)
+	log.Printf("Resolved issues query: %s", query)
+	resolvedIssues, _, err := client.Issue.Search(query, nil)
+	if err != nil {
+		log.Printf("Error querying JIRA for resolved issues: %v\n", err)
+		return nil, err
+	}
+	for _, issue := range resolvedIssues {
+		channels := notifyResConfig[issue.Fields.Project.Key]
+		for _, notifyChan := range channels {
+			log.Printf("Notifying %s about resolved %s %s", notifyChan,
+				issue.Fields.Type.Name,
+				issue.Key)
+			line := fmt.Sprintf("Resolved %s: %s", issue.Fields.Type.Name,
+				formatIssue(&issue, notifyChan))
+			ret = append(ret, bot.CmdResult{
+				Message: line,
+				Channel: notifyChan,
+			})
+		}
+	}
+
+	return ret, nil
+}
+
 func initJIRAClient() error {
 	var err error
 
@@ -219,7 +292,35 @@ func init() {
 		return
 	}
 
+	interval := os.Getenv(notifyIntervalEnv)
+	if interval == "" {
+		interval = "1"
+	}
+	notifyInterval, err = strconv.Atoi(interval)
+	if err != nil {
+		log.Printf("Error parsing interval from %s. Using default",
+			interval)
+		notifyInterval = 1
+	}
+
 	bot.RegisterPassiveCommandV2(
 		"jira",
 		jira)
+
+	if len(notifyNewConfig) > 0 {
+		bot.RegisterPeriodicCommandV2(
+			"periodicJIRANotifyNew",
+			bot.PeriodicConfig{
+				CronSpec:  fmt.Sprintf("0 */%d * * * *", notifyInterval),
+				CmdFuncV2: periodicJIRANotifyNew,
+			})
+	}
+	if len(notifyResConfig) > 0 {
+		bot.RegisterPeriodicCommandV2(
+			"periodicJIRANotifyResolved",
+			bot.PeriodicConfig{
+				CronSpec:  fmt.Sprintf("0 */%d * * * *", notifyInterval),
+				CmdFuncV2: periodicJIRANotifyResolved,
+			})
+	}
 }
