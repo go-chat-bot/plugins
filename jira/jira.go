@@ -55,7 +55,7 @@ func getProjects() (map[string]gojira.Project, error) {
 	return projects, nil
 }
 
-func getIssues(text string) [][2]string {
+func getIssuesFromString(text string) [][2]string {
 	matches := re.FindAllStringSubmatch(text, -1)
 	var data [][2]string
 	for _, match := range matches {
@@ -110,7 +110,7 @@ func jira(cmd *bot.PassiveCmd) (bot.CmdResultV3, error) {
 		Message: make(chan string),
 		Done:    make(chan bool, 1)}
 	result.Channel = cmd.Channel
-	issues := getIssues(cmd.Raw)
+	issues := getIssuesFromString(cmd.Raw)
 	if issues != nil {
 		go func() {
 			for _, issue := range issues {
