@@ -74,14 +74,9 @@ func provideDefaultValues(issue *gojira.Issue) {
 	issue.Self = url + issue.Key
 }
 
-func formatIssue(issueKey string, channel string) string {
-	defaultRet := url + issueKey
-	issue, _, err := client.Issue.Get(issueKey, nil)
-	if err != nil {
-		log.Printf("Failed getting issue %s info: %v\n", issueKey, err)
-		return defaultRet
-	}
-
+func formatIssue(issue *gojira.Issue, channel string) string {
+	defaultRet := url + issue.Key
+	provideDefaultValues(issue)
 	templ := defaultTemplate
 	config, found := channelConfigs[channel]
 	if found {
@@ -90,16 +85,14 @@ func formatIssue(issueKey string, channel string) string {
 
 	tmpl, err := template.New("default").Parse(templ)
 	if err != nil {
-		log.Printf("Failed formatting for %s: %v\n", issueKey, err)
+		log.Printf("Failed formatting for %s: %v\n", issue.Key, err)
 		return defaultRet
 	}
 
 	buf := &bytes.Buffer{}
-	provideDefaultValues(issue)
-
 	err = tmpl.Execute(buf, issue)
 	if err != nil {
-		log.Printf("Failed formatting for %s: %s\n", issueKey, err.Error())
+		log.Printf("Failed formatting for %s: %s\n", issue.Key, err.Error())
 		return defaultRet
 	}
 	return buf.String()
@@ -114,10 +107,19 @@ func jira(cmd *bot.PassiveCmd) (bot.CmdResultV3, error) {
 	if issues != nil {
 		go func() {
 			for _, issue := range issues {
-				key, num := issue[0], issue[1]
-				_, found := projects[key]
+				project, num := issue[0], issue[1]
+				key := project + "-" + num
+				_, found := projects[project]
 				if found {
-					result.Message <- formatIssue(key+"-"+num, cmd.Channel)
+					issue, _, err := client.Issue.Get(key, nil)
+					if err != nil {
+						log.Printf("Failed getting issue %s info: %v\n",
+							key, err)
+						continue
+					}
+					log.Printf("Replying to %s about issue %s\n", cmd.Channel,
+						key)
+					result.Message <- formatIssue(issue, cmd.Channel)
 				}
 			}
 			result.Done <- true
