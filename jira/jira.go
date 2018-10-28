@@ -27,13 +27,13 @@ const (
 
 var (
 	url             string
-	baseURL         string
-	jiraUser        string
-	jiraPass        string
-	projects        map[string]gojira.Project
-	channelConfigs  map[string]channelConfig
-	notifyNewConfig map[string][]string
-	notifyResConfig map[string][]string
+	baseURL         string                    // base JIRA instance hostname
+	jiraUser        string                    // JIRA username for authentication
+	jiraPass        string                    // JIRA passowrd for authentication
+	projects        map[string]gojira.Project // project.Key -> project map
+	channelConfigs  map[string]channelConfig  // channel -> channelConfig map
+	notifyNewConfig map[string][]string       // project.Key -> slice of channel names
+	notifyResConfig map[string][]string       // project.Key -> slice of channel names
 	client          *gojira.Client
 	re              = regexp.MustCompile(pattern)
 	newJQL          = "project in (%s) " +
