@@ -27,9 +27,6 @@ const (
 
 var (
 	url             string
-	baseURL         string                    // base JIRA instance hostname
-	jiraUser        string                    // JIRA username for authentication
-	jiraPass        string                    // JIRA passowrd for authentication
 	projects        map[string]gojira.Project // project.Key -> project map
 	channelConfigs  map[string]channelConfig  // channel -> channelConfig map
 	notifyNewConfig map[string][]string       // project.Key -> slice of channel names
@@ -211,7 +208,7 @@ func periodicJIRANotifyResolved() (ret []bot.CmdResult, err error) {
 	return ret, nil
 }
 
-func initJIRAClient() error {
+func initJIRAClient(baseURL, jiraUser, jiraPass string) error {
 	var err error
 
 	tp := gojira.BasicAuthTransport{
@@ -267,13 +264,13 @@ func loadChannelConfigs(filename string) error {
 }
 
 func init() {
-	jiraUser = os.Getenv(userEnv)
-	jiraPass = os.Getenv(passEnv)
-	baseURL = os.Getenv(baseURLEnv)
+	jiraUser := os.Getenv(userEnv)
+	jiraPass := os.Getenv(passEnv)
+	baseURL := os.Getenv(baseURLEnv)
 	confFile := os.Getenv(channelConfigEnv)
 	url = baseURL + "/browse/"
 
-	err := initJIRAClient()
+	err := initJIRAClient(baseURL, jiraUser, jiraPass)
 	if err != nil {
 		log.Printf("Error querying JIRA for projects: %v\n", err)
 		return
