@@ -1,0 +1,6 @@
+[
+    {
+        "channel": "#chan1",
+        "template": "{{.Self}}"
+    }
+]

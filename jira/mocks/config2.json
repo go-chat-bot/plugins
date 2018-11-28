@@ -1,0 +1,10 @@
+[
+    {
+        "channel": "#chan1",
+        "template": "{{.Self}} - 1"
+    },
+    {
+        "channel": "#chan2",
+        "template": "{{.Self}} - 2"
+    }
+]

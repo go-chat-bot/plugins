@@ -14,26 +14,33 @@ issue tracking system.
 * Set up JIRA_USER env variable to JIRA username for the bot account
 * Set up JIRA_PASS env variable to JIRA password for the bot account
 
-By default the plugin will output issues in following format:
+In addition to the above channel-specific configuration variables can be defined
+in a separate JSON configuration file loaded from path specified by environment
+variable `JIRA_CONFIG_FILE`. Example file can be seen in
+`example_config.json`. It is an array of channel configurations with each
+configuration having:
+ * `channel` for which the configuration is intended
+ * `template` to override default issue template (see Issue Formatting)
+ * `notifyNew` is array of JIRA project keys to watch for new issues
+ * `notifyResolved` is array JIRA project keys to watch for resolved issues
+
+### Issue Formatting
+
+By default the plugin will output issues in the following format:
 ```
 <key> (<assignee>, <status>): <summary> - <url>
 ```
-Optionally you can set up per-channel configuration by setting environment
-variables of JIRA_CHAN_TEMPL_<channel> with value of new template. To see
-which values are available for use in templates see
+To see which values are available for use in templates see
 [go-jira](https://github.com/andygrunwald/go-jira/blob/master/issue.go).
 
 The format used is go template notation on the issue object. If you want to just
-post URL to the issue itself when the channel is #jirabot you can configure it
-by setting environment as such:
-```
-export JIRA_CHAN_TEMPL_jirabot="{{.Self}}"
-```
+post URL to the issue itself you can configure it by setting the template to
+`{{.Self}}` for given channel in the configuration file.
 
-Default template looks as like this:
+Default template looks like this:
 ```
 {{.Key}} ({{.Fields.Assignee.Key}}, {{.Fields.Status.Name}}): {{.Fields.Summary}} - {{.Self}}
 ```
 
-### TODO
-* Notifications when new issues are created
+`JIRA_NOTIFY_INTERVAL` environment variable can be used to control how often the
+notification methods will be run. It defaults to be run every minute.

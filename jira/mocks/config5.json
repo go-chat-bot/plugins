@@ -1,0 +1,12 @@
+[
+    {
+        "channel": "#chan1",
+        "notifyNew": ["PROJ1", "PROJ2"],
+        "notifyResolved": ["PROJ1"]
+    },
+    {
+        "channel": "#chan2",
+        "notifyNew": ["PROJ1", "PROJ3"],
+        "notifyResolved": ["PROJ2", "PROJ3"]
+    }
+]
