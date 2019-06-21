@@ -23,6 +23,12 @@ const (
 	notifyIntervalEnv = "JIRA_NOTIFY_INTERVAL"
 	defaultTemplate   = "{{.Key}} ({{.Fields.Assignee.Key}}, {{.Fields.Status.Name}}): " +
 		"{{.Fields.Summary}} - {{.Self}}"
+	defaultTemplateNew = "New {{.Fields.Type.Name}}: {{.Key}} " +
+		"({{.Fields.Assignee.Key}}, {{.Fields.Status.Name}}): " +
+		"{{.Fields.Summary}} - {{.Self}}"
+	defaultTemplateResolved = "Resolved {{.Fields.Type.Name}}: {{.Key}} " +
+		"({{.Fields.Assignee.Key}}, {{.Fields.Status.Name}}): " +
+		"{{.Fields.Summary}} - {{.Self}}"
 )
 
 var (
@@ -44,10 +50,12 @@ var (
 )
 
 type channelConfig struct {
-	Channel        string   `json:"channel"`
-	Template       string   `json:"template,omitempty"`       // template format for issues being posted
-	NotifyNew      []string `json:"notifyNew,omitempty"`      // list of JIRA projects to watch for new issues
-	NotifyResolved []string `json:"notifyResolved,omitempty"` // list of JIRA projects to watch for resolved issues
+	Channel          string   `json:"channel"`
+	Template         string   `json:"template,omitempty"`         // template format for issues being posted
+	TemplateNew      string   `json:"templateNew,omitempty"`      // template format for newly created issues
+	TemplateResolved string   `json:"templateResolved,omitempty"` // template format for resolved issues
+	NotifyNew        []string `json:"notifyNew,omitempty"`        // list of JIRA projects to watch for new issues
+	NotifyResolved   []string `json:"notifyResolved,omitempty"`   // list of JIRA projects to watch for resolved issues
 }
 
 func getProjects() (map[string]gojira.Project, error) {
@@ -87,14 +95,9 @@ func provideDefaultValues(issue *gojira.Issue) {
 	issue.Self = url + issue.Key
 }
 
-func formatIssue(issue *gojira.Issue, channel string) string {
+func formatIssue(issue *gojira.Issue, channel string, templ string) string {
 	defaultRet := url + issue.Key
 	provideDefaultValues(issue)
-	templ := defaultTemplate
-	config, found := channelConfigs[channel]
-	if found {
-		templ = config.Template
-	}
 
 	tmpl, err := template.New("default").Parse(templ)
 	if err != nil {
@@ -132,7 +135,12 @@ func jira(cmd *bot.PassiveCmd) (bot.CmdResultV3, error) {
 					}
 					log.Printf("Replying to %s about issue %s\n", cmd.Channel,
 						key)
-					result.Message <- formatIssue(issue, cmd.Channel)
+					template := defaultTemplate
+					config, found := channelConfigs[cmd.Channel]
+					if found {
+						template = config.Template
+					}
+					result.Message <- formatIssue(issue, cmd.Channel, template)
 				}
 			}
 			result.Done <- true
@@ -164,10 +172,13 @@ func periodicJIRANotifyNew() (ret []bot.CmdResult, err error) {
 			log.Printf("Notifying %s about new %s %s", notifyChan,
 				issue.Fields.Type.Name,
 				issue.Key)
-			line := fmt.Sprintf("New %s: %s", issue.Fields.Type.Name,
-				formatIssue(&issue, notifyChan))
+			template := defaultTemplateNew
+			config, found := channelConfigs[notifyChan]
+			if found {
+				template = config.TemplateNew
+			}
 			ret = append(ret, bot.CmdResult{
-				Message: line,
+				Message: formatIssue(&issue, notifyChan, template),
 				Channel: notifyChan,
 			})
 		}
@@ -196,10 +207,13 @@ func periodicJIRANotifyResolved() (ret []bot.CmdResult, err error) {
 			log.Printf("Notifying %s about resolved %s %s", notifyChan,
 				issue.Fields.Type.Name,
 				issue.Key)
-			line := fmt.Sprintf("Resolved %s: %s", issue.Fields.Type.Name,
-				formatIssue(&issue, notifyChan))
+			template := defaultTemplateResolved
+			config, found := channelConfigs[notifyChan]
+			if found {
+				template = config.TemplateResolved
+			}
 			ret = append(ret, bot.CmdResult{
-				Message: line,
+				Message: formatIssue(&issue, notifyChan, template),
 				Channel: notifyChan,
 			})
 		}
@@ -249,6 +263,12 @@ func loadChannelConfigs(filename string) error {
 		}
 		if chanConf.Template == "" {
 			chanConf.Template = defaultTemplate
+		}
+		if chanConf.TemplateNew == "" {
+			chanConf.TemplateNew = defaultTemplateNew
+		}
+		if chanConf.TemplateResolved == "" {
+			chanConf.TemplateResolved = defaultTemplateResolved
 		}
 		channelConfigs[chanConf.Channel] = chanConf
 		for _, project := range chanConf.NotifyNew {

@@ -21,6 +21,8 @@ variable `JIRA_CONFIG_FILE`. Example file can be seen in
 configuration having:
  * `channel` for which the configuration is intended
  * `template` to override default issue template (see Issue Formatting)
+ * `templateNew` to override default issue template for new issue notifications
+ * `templateResolved` to override default issue template for resolved issue notifications
  * `notifyNew` is array of JIRA project keys to watch for new issues
  * `notifyResolved` is array JIRA project keys to watch for resolved issues
 
