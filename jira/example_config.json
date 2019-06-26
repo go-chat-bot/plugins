@@ -2,7 +2,8 @@
     {
         "channel": "#gojirabot",
         "notifyNew": ["JENKINS"],
-        "notifyResolved": ["JENKINS"]
+        "notifyResolved": ["JENKINS"],
+        "templateNew": "New {{.Fields.Type.Name}} reported by {{.Fields.Reporter.Key}}: {.Key}"
     },
     {
         "channel": "#gojira-test",
