@@ -328,16 +328,19 @@ func init() {
 		bot.RegisterPeriodicCommandV2(
 			"periodicJIRANotifyNew",
 			bot.PeriodicConfig{
-				CronSpec:  fmt.Sprintf("0 */%d * * * *", notifyInterval),
+				CronSpec:  fmt.Sprintf("*/%d * * * *", notifyInterval),
 				CmdFuncV2: periodicJIRANotifyNew,
 			})
 	}
+	log.Printf("New issue notifications set up for %d JIRA projects", len(notifyNewConfig))
 	if len(notifyResConfig) > 0 {
 		bot.RegisterPeriodicCommandV2(
 			"periodicJIRANotifyResolved",
 			bot.PeriodicConfig{
-				CronSpec:  fmt.Sprintf("0 */%d * * * *", notifyInterval),
+				CronSpec:  fmt.Sprintf("*/%d * * * *", notifyInterval),
 				CmdFuncV2: periodicJIRANotifyResolved,
 			})
 	}
+	log.Printf("Resolved issue notifications set up for %d JIRA projects", len(notifyResConfig))
+	log.Printf("JIRA plugin initialization successful")
 }
