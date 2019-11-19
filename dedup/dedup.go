@@ -6,6 +6,7 @@ import (
 	"log"
 	"os"
 	"strconv"
+	"sync"
 	"time"
 )
 
@@ -15,9 +16,10 @@ const (
 )
 
 var (
-	pastMessageMap map[uint32]time.Time
-	dedupConfig    time.Duration
-	fnvHash        = fnv.New32a()
+	pastMessageMap     map[uint32]time.Time
+	pastMessageMapLock = sync.RWMutex{}
+	dedupConfig        time.Duration
+	fnvHash            = fnv.New32a()
 )
 
 func messageHash(msg, target string) uint32 {
@@ -29,16 +31,22 @@ func messageHash(msg, target string) uint32 {
 
 func recordMessage(msgHash uint32, target string) {
 	until := time.Now().UTC().Add(dedupConfig)
+	pastMessageMapLock.Lock()
 	pastMessageMap[msgHash] = until
+	pastMessageMapLock.Unlock()
 	go func() {
 		time.Sleep(dedupConfig)
+		pastMessageMapLock.Lock()
 		delete(pastMessageMap, msgHash)
+		pastMessageMapLock.Unlock()
 	}()
 }
 
 func dedupFilter(cmd *bot.FilterCmd) (string, error) {
 	msgHash := messageHash(cmd.Message, cmd.Target)
+	pastMessageMapLock.RLock()
 	_, found := pastMessageMap[msgHash]
+	pastMessageMapLock.RUnlock()
 	if !found {
 		// No past message like this, record and send
 		recordMessage(msgHash, cmd.Target)
