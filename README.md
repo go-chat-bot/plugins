@@ -37,6 +37,8 @@ the configured channel(s).
 Look into the good morning [example
 command](https://github.com/go-chat-bot/plugins/blob/master/example/goodmorning_command.go) for guidance on how to write and configure periodic commands.
 
+* **cachet**: Notifies of service outages based on Cachet data
+
 ### Wish to write a new plugin?
 
 Start with the example commands in the [example directory](https://github.com/go-chat-bot/plugins/tree/master/example).
