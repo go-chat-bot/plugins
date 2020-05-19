@@ -1,3 +1,5 @@
+// Package twitter provides a plugin that scrapes messages for Twitter links,
+// then expands them into chat messages.
 package twitter
 
 import (
@@ -10,8 +12,12 @@ import (
 	"os"
 	"regexp"
 	"strconv"
+	"strings"
 )
 
+// findTweetIDs checks a given message string for strings that look like Twitter links,
+// then attempts to extract the Tweet ID from the link.
+// It returns an array of Tweet IDs.
 func findTweetIDs(message string) ([]int64, error) {
 	re := regexp.MustCompile(`http(?:s)?://(?:mobile.)?twitter.com/(?:.*)/status/([0-9]*)`)
 	// FIXME this is only returning the LAST match, should return ALL matches
@@ -31,6 +37,10 @@ func findTweetIDs(message string) ([]int64, error) {
 	return tweetIDs, err
 }
 
+// newAuthenticatedTwitterClient uses a provided consumer key and secret to authenticate
+// against Twitter's Oauth2 endpoint, then validates the authentication by checking the
+// current RateLimit against the provided account credentials.
+// It returns a twitter.Client.
 func newAuthenticatedTwitterClient(twitterConsumerKey, twitterConsumerSecret string) (*twitter.Client, error) {
 	if twitterConsumerKey == "" || twitterConsumerSecret == "" {
 		return nil, errors.New("missing API credentials")
@@ -67,6 +77,9 @@ func newAuthenticatedTwitterClient(twitterConsumerKey, twitterConsumerSecret str
 	return client, err
 }
 
+// fetchTweets takes an array of Tweet IDs and retrieves the corresponding
+// Statuses.
+// It returns an array of twitter.Tweets.
 func fetchTweets(client *twitter.Client, tweetIDs []int64) ([]twitter.Tweet, error) {
 	var tweets []twitter.Tweet
 	var err error
@@ -81,6 +94,8 @@ func fetchTweets(client *twitter.Client, tweetIDs []int64) ([]twitter.Tweet, err
 	return tweets, err
 }
 
+// fetchTweet takes a single Tweet ID and fetches the corresponding Status.
+// It returns a twitter.Tweet.
 func fetchTweet(client *twitter.Client, tweetID int64) (*twitter.Tweet, error) {
 	// populate FullText field
 	params := twitter.StatusShowParams{TweetMode: "extended"}
@@ -93,7 +108,9 @@ func fetchTweet(client *twitter.Client, tweetID int64) (*twitter.Tweet, error) {
 	return tweet, err
 }
 
-// actually this should take an interface :o
+// formatTweets takes an array of twitter.Tweets and formats them in preparation for
+// sending as a chat message.
+// It returns an array of nicely formatted strings.
 func formatTweets(tweets []twitter.Tweet) []string {
 	formatString := "Tweet from @%s: %s"
 	newlines := regexp.MustCompile(`\r?\n`)
@@ -107,6 +124,11 @@ func formatTweets(tweets []twitter.Tweet) []string {
 	return messages
 }
 
+// expandTweet receives a bot.PassiveCmd and performs the full parse-and-fetch
+// pipeline. It sets up a client, finds Tweet IDs in the message text, fetches
+// the tweets, and formats them. If multiple Tweet IDs were found in the message,
+// all formatted Tweets will be joined into a single message.
+// It returns a single string suitable for sending as a chat message.
 func expandTweet(cmd *bot.PassiveCmd) (string, error) {
 	var (
 		twitterConsumerKey    = os.Getenv("TWITTER_CONSUMER_KEY")
@@ -120,13 +142,12 @@ func expandTweet(cmd *bot.PassiveCmd) (string, error) {
 	tweets, err := fetchTweets(client, tweetIDs)
 	formattedTweets := formatTweets(tweets)
 	if formattedTweets != nil {
-		// FIXME only 1 tweet per message lol sry
-		// join with newlines maybe?
-		message = formattedTweets[0]
+		message = strings.Join(formattedTweets, "\n")
 	}
 	return message, err
 }
 
+// init initalizes a PassiveCommand for expanding Tweets.
 func init() {
 	// TODO initialize Twitter client here
 	// we should only need to create a Twitter.Client once on startup
