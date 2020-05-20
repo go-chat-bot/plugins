@@ -140,6 +140,9 @@ func expandTweet(cmd *bot.PassiveCmd) (string, error) {
 	messageText := cmd.MessageData.Text
 	tweetIDs, err := findTweetIDs(messageText)
 	tweets, err := fetchTweets(client, tweetIDs)
+	if err != nil {
+		return message, err
+	}
 	formattedTweets := formatTweets(tweets)
 	if formattedTweets != nil {
 		message = strings.Join(formattedTweets, "\n")
