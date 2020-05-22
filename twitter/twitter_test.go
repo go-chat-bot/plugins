@@ -3,7 +3,7 @@ package twitter
 import (
 	"errors"
 	"github.com/go-chat-bot/bot"
-	"os"
+	"regexp"
 	"testing"
 )
 
@@ -17,17 +17,46 @@ func TestTwitter(t *testing.T) {
 
 	var cases = []struct {
 		input, output string
-		expectedErr   error
+		expectedError error
 	}{
-		{"this message has no links", "", nil},
-		{"http://twitter.com/jbouie/status/1247273759632961537", jbouieOutput, nil},
-		{"https://mobile.twitter.com/jbouie/status/1247273759632961537", jbouieOutput, nil},
-		{"wow check out this tweet https://mobile.twitter.com/jbouie/status/1247273759632961537", jbouieOutput, nil},
-		{"wow check out this tweethttps://mobile.twitter.com/jbouie/status/1247273759632961537", jbouieOutput, nil},
-		{"wow check out this tweet https://mobile.twitter.com/jbouie/status/1247273759632961537super cool right?", jbouieOutput, nil},
-		{"https://twitter.com/dmackdrwns/status/1217830568848764930/photo/1", dmackdrwnsOutput, nil},
-		{input: "http://twitter.com/jbouie/status/123456789", output: "", expectedErr: errors.New("404 Not Found")},
-		{input: "https://twitter.com/SethAbramson/status/1259875673994338305 lol bye", output: sethAbramsonOutput, expectedErr: nil},
+		{
+			input:         "this message has no links",
+			output:        "",
+			expectedError: nil,
+		}, {
+			input:         "http://twitter.com/jbouie/status/1247273759632961537",
+			output:        jbouieOutput,
+			expectedError: nil,
+		}, {
+			input:         "https://mobile.twitter.com/jbouie/status/1247273759632961537",
+			output:        jbouieOutput,
+			expectedError: nil,
+		}, {
+			input:         "wow check out this tweet https://mobile.twitter.com/jbouie/status/1247273759632961537",
+			output:        jbouieOutput,
+			expectedError: nil,
+		}, {
+			input:         "wow check out this tweethttps://mobile.twitter.com/jbouie/status/1247273759632961537",
+			output:        jbouieOutput,
+			expectedError: nil,
+		}, {
+			input:         "wow check out this tweet https://mobile.twitter.com/jbouie/status/1247273759632961537super cool right?",
+			output:        jbouieOutput,
+			expectedError: nil,
+		}, {
+			input:         "https://twitter.com/dmackdrwns/status/1217830568848764930/photo/1",
+			output:        dmackdrwnsOutput,
+			expectedError: nil,
+		}, {
+			input:         "http://twitter.com/jbouie/status/123456789",
+			output:        "",
+			expectedError: errors.New("twitter: 144 No status found with that ID."),
+		}, {
+			input:         "https://twitter.com/SethAbramson/status/1259875673994338305 lol bye",
+			output:        sethAbramsonOutput,
+			expectedError: nil,
+		},
+
 		// FIXME these should all pass
 		//{"https://mobile.twitter.com/jbouie/status/1247273759632961537 https://twitter.com/NicolleDWallace/status/1260032806832336900", []int64{1247273759632961537, 1260032806832336900}},
 		//{"https://mobile.twitter.com/jbouie/status/1247273759632961537 https://mobile.twitter.com/NicolleDWallace/status/1260032806832336900", []int64{1247273759632961537, 1260032806832336900}},
@@ -52,39 +81,45 @@ func TestTwitter(t *testing.T) {
 		}
 		t.Run(string(i), func(t *testing.T) {
 			// these CANNOT run concurrently
-			got, err := expandTweet(&testingCmd)
+			// FIXME panic here when no credentials
+			got, err := expandTweets(&testingCmd)
 			want := c.output
-			if err != nil && err.Error() != c.expectedErr.Error() {
+			if err != nil && err.Error() != c.expectedError.Error() {
 				t.Error(err)
 			}
 			if got != want {
 				t.Errorf("got %+v; want %+v", got, want)
 			}
 		})
-
 	}
 }
 
 func TestNewAuthenticatedTwitterClient(t *testing.T) {
-	var (
-		twitterConsumerKey    = os.Getenv("TWITTER_CONSUMER_KEY")
-		twitterConsumerSecret = os.Getenv("TWITTER_CONSUMER_SECRET")
-	)
+	// TODO test case for these envvars not being set
+	key, secret, err := getCredentialsFromEnvironment()
+	if err != nil {
+		t.Error(err)
+	}
 	var cases = []struct {
 		key, secret   string
 		expectedError error
 	}{
 		{key: "", secret: "", expectedError: errors.New("missing API credentials")},
-		// FIXME can't seem to capture the exact error, but it is a variation of 403 Forbidden
-		{key: "asdf", secret: "jklmnop", expectedError: errors.New("403 Forbidden")},
-		{key: twitterConsumerKey, secret: twitterConsumerSecret, expectedError: nil},
+		{key: "asdf", secret: "jklmnop", expectedError: errors.New(`Get https://api.twitter.com/1.1/application/rate_limit_status.json?resources=statuses: oauth2: cannot fetch token: 403 Forbidden Response: {"errors":[{"code":99,"message":"Unable to verify your credentials","label":"authenticity_token_error"}]}`)},
+		{key: key, secret: secret, expectedError: errors.New("")},
 	}
+	newlines := regexp.MustCompile(`\r?\n`)
 	for i, c := range cases {
 		t.Run(string(i), func(t *testing.T) {
 			// these CANNOT run concurrently
 			_, err := newAuthenticatedTwitterClient(c.key, c.secret)
-			if err != nil && err.Error() != c.expectedError.Error() {
-				t.Errorf("got %s; want %s", err, c.expectedError)
+			if err != nil {
+				// eat newlines because they mess with our tests
+				got := newlines.ReplaceAllString(err.Error(), " ")
+				want := c.expectedError.Error()
+				if got != want {
+					t.Errorf("got %s; want %s", got, want)
+				}
 			}
 		})
 	}
