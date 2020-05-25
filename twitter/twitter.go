@@ -43,13 +43,12 @@ func findTweetIDs(message string) ([]int64, error) {
 // missingAPICredentialsError.
 // If successful, it returns the consumer key and consumer secret.
 func getCredentialsFromEnvironment() (string, string, error) {
-	var err error
 	key, keyOk := os.LookupEnv("TWITTER_CONSUMER_KEY")
 	secret, secretOk := os.LookupEnv("TWITTER_CONSUMER_SECRET")
 	if !keyOk || !secretOk {
 		return "", "", errors.New("missing API credentials")
 	}
-	return key, secret, err
+	return key, secret, nil
 }
 
 // newTwitterClientConfig takes a Twitter consumer key and consumer secret and
@@ -59,14 +58,13 @@ func getCredentialsFromEnvironment() (string, string, error) {
 func newTwitterClientConfig(twitterConsumerKey, twitterConsumerSecret string) (*clientcredentials.Config, error) {
 	if twitterConsumerKey == "" || twitterConsumerSecret == "" {
 		return nil, errors.New("missing API credentials")
-	} else {
-		config := &clientcredentials.Config{
-			ClientID:     twitterConsumerKey,
-			ClientSecret: twitterConsumerSecret,
-			TokenURL:     "https://api.twitter.com/oauth2/token",
-		}
-		return config, nil
 	}
+	config := &clientcredentials.Config{
+		ClientID:     twitterConsumerKey,
+		ClientSecret: twitterConsumerSecret,
+		TokenURL:     "https://api.twitter.com/oauth2/token",
+	}
+	return config, nil
 }
 
 // newAuthenticatedTwitterClient uses a provided consumer key and secret to authenticate
@@ -82,8 +80,11 @@ func newAuthenticatedTwitterClient(twitterConsumerKey, twitterConsumerSecret str
 	httpClient := config.Client(oauth2.NoContext)
 	client := twitter.NewClient(httpClient)
 	err = checkTwitterClientRateLimit(client)
+	if err != nil {
+		return nil, err
+	}
 
-	return client, err
+	return client, nil
 }
 
 // checkTwitterClientRateLimit uses the provided twitter.Client to check the remaining
@@ -107,7 +108,7 @@ func checkTwitterClientRateLimit(client *twitter.Client) error {
 	if remaining == 0 {
 		return errors.New("rate limit exceeded")
 	}
-	return err
+	return nil
 }
 
 // fetchTweets takes an array of Tweet IDs and retrieves the corresponding
@@ -115,29 +116,30 @@ func checkTwitterClientRateLimit(client *twitter.Client) error {
 // It returns an array of twitter.Tweets.
 func fetchTweets(client *twitter.Client, tweetIDs []int64) ([]twitter.Tweet, error) {
 	var tweets []twitter.Tweet
-	var err error
 	for _, tweetID := range tweetIDs {
-		tweet, fetchErr := fetchTweet(client, tweetID)
-		if fetchErr != nil {
-			// TODO what about multiple rrors
-			err = fetchErr
+		tweet, err := fetchTweet(client, tweetID)
+		if err != nil {
+			return nil, err
 		}
 		tweets = append(tweets, *tweet)
 	}
-	return tweets, err
+	return tweets, nil
 }
 
-// fetchTweet takes a single Tweet ID and fetches the corresponding Status.
+// fetchTweet takes a twitter.Client and a single Tweet ID and fetches the
+// corresponding Status.
 // It returns a twitter.Tweet.
 func fetchTweet(client *twitter.Client, tweetID int64) (*twitter.Tweet, error) {
 	var err error
 	// TODO get alt text
 	// params: include_entities=true,include_ext_alt_text=true
 
-	// populate FullText field
-	params := twitter.StatusShowParams{TweetMode: "extended"}
+	params := twitter.StatusShowParams{
+		TweetMode: "extended", // populate FullText field
+	}
 	tweet, resp, err := client.Statuses.Show(tweetID, &params)
 
+	// If we return nil instead of tweet, a panic happens
 	if err != nil {
 		return tweet, err
 	}
@@ -177,16 +179,13 @@ func formatTweets(tweets []twitter.Tweet) []string {
 func expandTweets(cmd *bot.PassiveCmd) (string, error) {
 	var message string
 	messageText := cmd.MessageData.Text
-	// message text could be empty
 
 	twitterConsumerKey, twitterConsumerSecret, err := getCredentialsFromEnvironment()
-	// key or secret could be empty
 	if err != nil {
 		return message, err
 	}
 
 	client, err := newAuthenticatedTwitterClient(twitterConsumerKey, twitterConsumerSecret)
-	// credentials could be non-empty but bad
 	if err != nil {
 		return message, err
 	}
@@ -210,11 +209,7 @@ func expandTweets(cmd *bot.PassiveCmd) (string, error) {
 
 // init initalizes a PassiveCommand for expanding Tweets.
 func init() {
-	// TODO initialize Twitter client here
-	// we should only need to create a Twitter.Client once on startup
 	bot.RegisterPassiveCommand(
 		"twitter",
 		expandTweets)
-
-	// TODO !ratelimit command to expose current rate limits
 }
