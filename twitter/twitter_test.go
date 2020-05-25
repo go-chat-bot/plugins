@@ -48,7 +48,7 @@ func TestTwitter(t *testing.T) {
 			output:        dmackdrwnsOutput,
 			expectedError: nil,
 		}, {
-			input:         "http://twitter.com/jbouie/status/123456789",
+			input:         "http://twitter.com/notARealUser/status/123456789",
 			output:        "",
 			expectedError: errors.New("twitter: 144 No status found with that ID."),
 		}, {
@@ -104,9 +104,19 @@ func TestNewAuthenticatedTwitterClient(t *testing.T) {
 		key, secret   string
 		expectedError error
 	}{
-		{key: "", secret: "", expectedError: errors.New("missing API credentials")},
-		{key: "asdf", secret: "jklmnop", expectedError: errors.New(`Get https://api.twitter.com/1.1/application/rate_limit_status.json?resources=statuses: oauth2: cannot fetch token: 403 Forbidden Response: {"errors":[{"code":99,"message":"Unable to verify your credentials","label":"authenticity_token_error"}]}`)},
-		{key: key, secret: secret, expectedError: errors.New("")},
+		{
+			key:           "",
+			secret:        "",
+			expectedError: errors.New("missing API credentials"),
+		}, {
+			key:           "asdf",
+			secret:        "jklmnop",
+			expectedError: errors.New(`Get https://api.twitter.com/1.1/application/rate_limit_status.json?resources=statuses: oauth2: cannot fetch token: 403 Forbidden Response: {"errors":[{"code":99,"message":"Unable to verify your credentials","label":"authenticity_token_error"}]}`),
+		}, {
+			key:           key,
+			secret:        secret,
+			expectedError: nil,
+		},
 	}
 	newlines := regexp.MustCompile(`\r?\n`)
 	for i, c := range cases {
