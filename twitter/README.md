@@ -1,3 +1,12 @@
+# Overview
+
+The Twitter plugin scrapes message text for Twitter URLs, then attempts to fetch the linked Tweet and post it to the channel, like so:
+
+```
+08:29:19 <user> https://twitter.com/simonpierce/status/1265829199115218945
+08:29:21 <chatbot> Tweet from @simonpierce: Gentoo penguins like to exercise their growing chicks by makingthem run around the colony, squawking hysterically, if they want to get fed.  I'm not saying it'd be fun to try this with your own kids if you're stuck at home... but I'm not not saying that. https://t.co/2Y0wewRKDw
+```
+
 # Setting up Twitter API credentials
 
 - Request Twitter development access [here](https://developer.twitter.com) (Note: the approval process takes about a week)

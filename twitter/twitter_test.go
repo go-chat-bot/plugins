@@ -11,7 +11,6 @@ func TestTwitter(t *testing.T) {
 	// given a message string, I should get back a response message string
 	// containing one or more parsed Tweets
 	jbouieOutput := `Tweet from @jbouie: This falls into one of my favorite genres of tweets, bona fide elites whose pretenses to understanding “common people” instead reveal their cloistered, condescending view of ordinary people. https://t.co/KV8xnG2w48`
-	//yamicheOutput := `Tweet from @Yamiche: A quote that will be much talked about.   President Trump said on Fox News moments ago: “I learned a lot from Richard Nixon, don’t fire people. I learned a lot by watching Richard Nixon.”  He added, “I did nothing wrong and there are no tapes in my case.”`
 	sethAbramsonOutput := `Tweet from @SethAbramson: This is the first U.S. presidential election in which "Vote Him Out Before He Kills You and Your Family" is a wholly reasonable slogan for the challenger`
 	dmackdrwnsOutput := `Tweet from @dmackdrwns: It was pretty fun to try to manifest creatures plucked right from the minds of manic children.  #georgiamuseumofart https://t.co/C983t6QjmT`
 
@@ -56,11 +55,6 @@ func TestTwitter(t *testing.T) {
 			output:        sethAbramsonOutput,
 			expectedError: nil,
 		},
-
-		// FIXME these should all pass
-		//{"https://mobile.twitter.com/jbouie/status/1247273759632961537 https://twitter.com/NicolleDWallace/status/1260032806832336900", []int64{1247273759632961537, 1260032806832336900}},
-		//{"https://mobile.twitter.com/jbouie/status/1247273759632961537 https://mobile.twitter.com/NicolleDWallace/status/1260032806832336900", []int64{1247273759632961537, 1260032806832336900}},
-		//{"https://mobile.twitter.com/NicolleDWallace/status/1260032806832336900 https://mobile.twitter.com/jbouie/status/1247273759632961537", []int64{1260032806832336900, 1247273759632961537}},
 	}
 	for i, c := range cases {
 		testingUser := bot.User{
