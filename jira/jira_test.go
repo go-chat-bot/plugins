@@ -27,8 +27,8 @@ func setup() *httptest.Server {
 			fmt.Fprintf(w, "%s", dat)
 		},
 	))
-	baseURL = ts.URL
-	err := initJIRAClient()
+	baseURL := ts.URL
+	err := initJIRAClient(baseURL, "", "")
 	if err != nil {
 		fmt.Print(err.Error())
 	}
