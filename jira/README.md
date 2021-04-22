@@ -46,3 +46,7 @@ Default template looks like this:
 
 `JIRA_NOTIFY_INTERVAL` environment variable can be used to control how often the
 notification methods will be run. It defaults to be run every minute.
+
+### Quieter log
+By default the bot generates a log every time it queries JIRA.
+You can make it quieter by defining the JIRA_QUIET env variable (any value).

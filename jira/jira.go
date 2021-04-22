@@ -4,14 +4,15 @@ import (
 	"bytes"
 	"encoding/json"
 	"fmt"
-	gojira "github.com/andygrunwald/go-jira"
-	"github.com/go-chat-bot/bot"
 	"log"
 	"os"
 	"regexp"
 	"strconv"
 	"strings"
 	"text/template"
+
+	gojira "github.com/andygrunwald/go-jira"
+	"github.com/go-chat-bot/bot"
 )
 
 const (
@@ -29,6 +30,7 @@ const (
 	defaultTemplateResolved = "Resolved {{.Fields.Type.Name}}: {{.Key}} " +
 		"({{.Fields.Assignee.Key}}, {{.Fields.Status.Name}}): " +
 		"{{.Fields.Summary}} - {{.Self}}"
+	quietEnv = "JIRA_QUIET"
 )
 
 var (
@@ -47,6 +49,7 @@ var (
 		"AND resolved > '-%dm' " +
 		"ORDER BY key ASC"
 	notifyInterval int
+	quiet          bool
 )
 
 type channelConfig struct {
@@ -133,8 +136,10 @@ func jira(cmd *bot.PassiveCmd) (bot.CmdResultV3, error) {
 							key, err)
 						continue
 					}
-					log.Printf("Replying to %s about issue %s\n", cmd.Channel,
-						key)
+					if !quiet {
+						log.Printf("Replying to %s about issue %s\n", cmd.Channel,
+							key)
+					}
 					template := defaultTemplate
 					config, found := channelConfigs[cmd.Channel]
 					if found {
@@ -160,7 +165,9 @@ func periodicJIRANotifyNew() (ret []bot.CmdResult, err error) {
 
 	query := fmt.Sprintf(newJQL, strings.Join(newProjectKeys, ","),
 		notifyInterval)
-	log.Printf("New issues query: %s", query)
+	if !quiet {
+		log.Printf("New issues query: %s", query)
+	}
 	newIssues, _, err := client.Issue.Search(query, nil)
 	if err != nil {
 		log.Printf("Error querying JIRA for new issues: %v\n", err)
@@ -169,9 +176,11 @@ func periodicJIRANotifyNew() (ret []bot.CmdResult, err error) {
 	for _, issue := range newIssues {
 		channels := notifyNewConfig[issue.Fields.Project.Key]
 		for _, notifyChan := range channels {
-			log.Printf("Notifying %s about new %s %s", notifyChan,
-				issue.Fields.Type.Name,
-				issue.Key)
+			if !quiet {
+				log.Printf("Notifying %s about new %s %s", notifyChan,
+					issue.Fields.Type.Name,
+					issue.Key)
+			}
 			template := defaultTemplateNew
 			config, found := channelConfigs[notifyChan]
 			if found {
@@ -195,7 +204,9 @@ func periodicJIRANotifyResolved() (ret []bot.CmdResult, err error) {
 
 	query := fmt.Sprintf(resolvedJQL, strings.Join(resolvedProjectKeys, ","),
 		notifyInterval)
-	log.Printf("Resolved issues query: %s", query)
+	if !quiet {
+		log.Printf("Resolved issues query: %s", query)
+	}
 	resolvedIssues, _, err := client.Issue.Search(query, nil)
 	if err != nil {
 		log.Printf("Error querying JIRA for resolved issues: %v\n", err)
@@ -204,9 +215,11 @@ func periodicJIRANotifyResolved() (ret []bot.CmdResult, err error) {
 	for _, issue := range resolvedIssues {
 		channels := notifyResConfig[issue.Fields.Project.Key]
 		for _, notifyChan := range channels {
-			log.Printf("Notifying %s about resolved %s %s", notifyChan,
-				issue.Fields.Type.Name,
-				issue.Key)
+			if !quiet {
+				log.Printf("Notifying %s about resolved %s %s", notifyChan,
+					issue.Fields.Type.Name,
+					issue.Key)
+			}
 			template := defaultTemplateResolved
 			config, found := channelConfigs[notifyChan]
 			if found {
@@ -284,6 +297,8 @@ func loadChannelConfigs(filename string) error {
 }
 
 func init() {
+	_, quiet = os.LookupEnv(quietEnv)
+
 	jiraUser := os.Getenv(userEnv)
 	jiraPass := os.Getenv(passEnv)
 	baseURL := os.Getenv(baseURLEnv)
