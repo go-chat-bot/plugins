@@ -30,7 +30,7 @@ const (
 	defaultTemplateResolved = "Resolved {{.Fields.Type.Name}}: {{.Key}} " +
 		"({{.Fields.Assignee.Key}}, {{.Fields.Status.Name}}): " +
 		"{{.Fields.Summary}} - {{.Self}}"
-	quietEnv = "JIRA_QUIET"
+	verboseEnv = "JIRA_VERBOSE"
 )
 
 var (
@@ -49,7 +49,7 @@ var (
 		"AND resolved > '-%dm' " +
 		"ORDER BY key ASC"
 	notifyInterval int
-	quiet          bool
+	verbose        bool
 )
 
 type channelConfig struct {
@@ -136,7 +136,7 @@ func jira(cmd *bot.PassiveCmd) (bot.CmdResultV3, error) {
 							key, err)
 						continue
 					}
-					if !quiet {
+					if verbose {
 						log.Printf("Replying to %s about issue %s\n", cmd.Channel,
 							key)
 					}
@@ -165,7 +165,7 @@ func periodicJIRANotifyNew() (ret []bot.CmdResult, err error) {
 
 	query := fmt.Sprintf(newJQL, strings.Join(newProjectKeys, ","),
 		notifyInterval)
-	if !quiet {
+	if verbose {
 		log.Printf("New issues query: %s", query)
 	}
 	newIssues, _, err := client.Issue.Search(query, nil)
@@ -176,7 +176,7 @@ func periodicJIRANotifyNew() (ret []bot.CmdResult, err error) {
 	for _, issue := range newIssues {
 		channels := notifyNewConfig[issue.Fields.Project.Key]
 		for _, notifyChan := range channels {
-			if !quiet {
+			if verbose {
 				log.Printf("Notifying %s about new %s %s", notifyChan,
 					issue.Fields.Type.Name,
 					issue.Key)
@@ -204,7 +204,7 @@ func periodicJIRANotifyResolved() (ret []bot.CmdResult, err error) {
 
 	query := fmt.Sprintf(resolvedJQL, strings.Join(resolvedProjectKeys, ","),
 		notifyInterval)
-	if !quiet {
+	if verbose {
 		log.Printf("Resolved issues query: %s", query)
 	}
 	resolvedIssues, _, err := client.Issue.Search(query, nil)
@@ -215,7 +215,7 @@ func periodicJIRANotifyResolved() (ret []bot.CmdResult, err error) {
 	for _, issue := range resolvedIssues {
 		channels := notifyResConfig[issue.Fields.Project.Key]
 		for _, notifyChan := range channels {
-			if !quiet {
+			if verbose {
 				log.Printf("Notifying %s about resolved %s %s", notifyChan,
 					issue.Fields.Type.Name,
 					issue.Key)
@@ -297,7 +297,7 @@ func loadChannelConfigs(filename string) error {
 }
 
 func init() {
-	_, quiet = os.LookupEnv(quietEnv)
+	_, verbose = os.LookupEnv(verboseEnv)
 
 	jiraUser := os.Getenv(userEnv)
 	jiraPass := os.Getenv(passEnv)
