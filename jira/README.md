@@ -46,3 +46,7 @@ Default template looks like this:
 
 `JIRA_NOTIFY_INTERVAL` environment variable can be used to control how often the
 notification methods will be run. It defaults to be run every minute.
+
+### Verbose log
+If JIRA_VERBOSE variable is defined (any value) the bot generates a log
+every time it queries JIRA.
