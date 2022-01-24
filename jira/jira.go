@@ -245,10 +245,10 @@ func initJIRAClient(baseURL, jiraUser, jiraPass, jiraToken string) error {
     }
     client, err = gojira.NewClient(tpPATA.Client(), baseURL)
   } else {
-	  tpBA := gojira.BasicAuthTransport{
-  		Username: jiraUser,
-  		Password: jiraPass,
-  	}
+    tpBA := gojira.BasicAuthTransport{
+      Username: jiraUser,
+      Password: jiraPass,
+    }
     client, err = gojira.NewClient(tpBA.Client(), baseURL)
   }
 	if err != nil {
