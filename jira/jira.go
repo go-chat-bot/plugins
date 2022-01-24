@@ -245,7 +245,7 @@ func initJIRAClient(baseURL, jiraUser, jiraPass, jiraToken string) error {
 	}
 
   if len(jiraToken) > 0 {
-    tp := gojira.PATAuthTransport {
+    tp = gojira.PATAuthTransport {
       Token: jiraToken,
     }
   }
