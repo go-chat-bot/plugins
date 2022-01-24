@@ -239,18 +239,18 @@ func periodicJIRANotifyResolved() (ret []bot.CmdResult, err error) {
 func initJIRAClient(baseURL, jiraUser, jiraPass, jiraToken string) error {
 	var err error
 
-	tp := gojira.BasicAuthTransport{
-		Username: jiraUser,
-		Password: jiraPass,
-	}
-
   if len(jiraToken) > 0 {
-    tp = gojira.PATAuthTransport {
+    tpPATA := gojira.PATAuthTransport {
       Token: jiraToken,
     }
+    client, err = gojira.NewClient(tpPATA.Client(), baseURL)
+  } else {
+	  tpBA := gojira.BasicAuthTransport{
+  		Username: jiraUser,
+  		Password: jiraPass,
+  	}
+    client, err = gojira.NewClient(tpBA.Client(), baseURL)
   }
-
-	client, err = gojira.NewClient(tp.Client(), baseURL)
 	if err != nil {
 		log.Printf("Error initializing JIRA client: %v\n", err)
 		return err
