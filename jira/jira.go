@@ -244,6 +244,12 @@ func initJIRAClient(baseURL, jiraUser, jiraPass, jiraToken string) error {
 		Password: jiraPass,
 	}
 
+  if len(jiraToken) > 0 {
+    tp := gojira.PATAuthTransport {
+      Token: jiraToken,
+    }
+  }
+
 	client, err = gojira.NewClient(tp.Client(), baseURL)
 	if err != nil {
 		log.Printf("Error initializing JIRA client: %v\n", err)
