@@ -13,6 +13,8 @@ issue tracking system.
   https://issues.jenkins-ci.org
 * Set up JIRA_USER env variable to JIRA username for the bot account
 * Set up JIRA_PASS env variable to JIRA password for the bot account
+* Optional: set up JIRA_TOKEN env variable, if your instance requires
+  using personal access tokens (user/pass no longer need to be defined).
 
 In addition to the above channel-specific configuration variables can be defined
 in a separate JSON configuration file loaded from path specified by environment
