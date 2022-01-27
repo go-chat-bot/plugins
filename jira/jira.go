@@ -19,6 +19,7 @@ const (
 	pattern           = ".*?([A-Z]+)-([0-9]+)\\b"
 	userEnv           = "JIRA_USER"
 	passEnv           = "JIRA_PASS"
+	tokenEnv          = "JIRA_TOKEN"
 	baseURLEnv        = "JIRA_BASE_URL"
 	channelConfigEnv  = "JIRA_CONFIG_FILE"
 	notifyIntervalEnv = "JIRA_NOTIFY_INTERVAL"
@@ -235,15 +236,21 @@ func periodicJIRANotifyResolved() (ret []bot.CmdResult, err error) {
 	return ret, nil
 }
 
-func initJIRAClient(baseURL, jiraUser, jiraPass string) error {
+func initJIRAClient(baseURL, jiraUser, jiraPass, jiraToken string) error {
 	var err error
 
-	tp := gojira.BasicAuthTransport{
-		Username: jiraUser,
-		Password: jiraPass,
-	}
-
-	client, err = gojira.NewClient(tp.Client(), baseURL)
+  if len(jiraToken) > 0 {
+    tpPATA := gojira.PATAuthTransport {
+      Token: jiraToken,
+    }
+    client, err = gojira.NewClient(tpPATA.Client(), baseURL)
+  } else {
+    tpBA := gojira.BasicAuthTransport{
+      Username: jiraUser,
+      Password: jiraPass,
+    }
+    client, err = gojira.NewClient(tpBA.Client(), baseURL)
+  }
 	if err != nil {
 		log.Printf("Error initializing JIRA client: %v\n", err)
 		return err
@@ -301,11 +308,12 @@ func init() {
 
 	jiraUser := os.Getenv(userEnv)
 	jiraPass := os.Getenv(passEnv)
+	jiraToken := os.Getenv(tokenEnv)
 	baseURL := os.Getenv(baseURLEnv)
 	confFile := os.Getenv(channelConfigEnv)
 	url = baseURL + "/browse/"
 
-	err := initJIRAClient(baseURL, jiraUser, jiraPass)
+	err := initJIRAClient(baseURL, jiraUser, jiraPass, jiraToken)
 	if err != nil {
 		log.Printf("Error querying JIRA for projects: %v\n", err)
 		return
