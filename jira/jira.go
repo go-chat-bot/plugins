@@ -57,6 +57,7 @@ var (
 
 type channelConfig struct {
 	Channel          string   `json:"channel"`
+	Thread           string   `json:"thread,omitempty"`
 	Template         string   `json:"template,omitempty"`         // template format for issues being posted
 	TemplateNew      string   `json:"templateNew,omitempty"`      // template format for newly created issues
 	TemplateResolved string   `json:"templateResolved,omitempty"` // template format for resolved issues
@@ -217,9 +218,10 @@ func periodicJIRANotifyResolved() (ret []bot.CmdResult, err error) {
 	}
 	for _, issue := range resolvedIssues {
 		channels := notifyResConfig[issue.Fields.Project.Key]
+		threadName := notifyResConfig[issue.Fields.Thread.Key][0]
 		for _, notifyChan := range channels {
 			if thread {
-				notifyChan += ":" + notifyChan + "/threads/jiraThread"
+				notifyChan += ":" + notifyChan + "/threads/" + threadName
 			}
 			if verbose {
 				log.Printf("Notifying %s about resolved %s %s", notifyChan,
