@@ -32,6 +32,7 @@ const (
 		"({{.Fields.Assignee.Key}}, {{.Fields.Status.Name}}): " +
 		"{{.Fields.Summary}} - {{.Self}}"
 	verboseEnv = "JIRA_VERBOSE"
+	threadEnv  = "JIRA_THREAD"
 )
 
 var (
@@ -51,6 +52,7 @@ var (
 		"ORDER BY key ASC"
 	notifyInterval int
 	verbose        bool
+	thread         bool
 )
 
 type channelConfig struct {
@@ -216,6 +218,9 @@ func periodicJIRANotifyResolved() (ret []bot.CmdResult, err error) {
 	for _, issue := range resolvedIssues {
 		channels := notifyResConfig[issue.Fields.Project.Key]
 		for _, notifyChan := range channels {
+			if thread {
+				notifyChan += ":jiraThread"
+			}
 			if verbose {
 				log.Printf("Notifying %s about resolved %s %s", notifyChan,
 					issue.Fields.Type.Name,
@@ -239,18 +244,18 @@ func periodicJIRANotifyResolved() (ret []bot.CmdResult, err error) {
 func initJIRAClient(baseURL, jiraUser, jiraPass, jiraToken string) error {
 	var err error
 
-  if len(jiraToken) > 0 {
-    tpPATA := gojira.PATAuthTransport {
-      Token: jiraToken,
-    }
-    client, err = gojira.NewClient(tpPATA.Client(), baseURL)
-  } else {
-    tpBA := gojira.BasicAuthTransport{
-      Username: jiraUser,
-      Password: jiraPass,
-    }
-    client, err = gojira.NewClient(tpBA.Client(), baseURL)
-  }
+	if len(jiraToken) > 0 {
+		tpPATA := gojira.PATAuthTransport{
+			Token: jiraToken,
+		}
+		client, err = gojira.NewClient(tpPATA.Client(), baseURL)
+	} else {
+		tpBA := gojira.BasicAuthTransport{
+			Username: jiraUser,
+			Password: jiraPass,
+		}
+		client, err = gojira.NewClient(tpBA.Client(), baseURL)
+	}
 	if err != nil {
 		log.Printf("Error initializing JIRA client: %v\n", err)
 		return err
@@ -305,6 +310,7 @@ func loadChannelConfigs(filename string) error {
 
 func init() {
 	_, verbose = os.LookupEnv(verboseEnv)
+	_, thread = os.LookupEnv(threadEnv)
 
 	jiraUser := os.Getenv(userEnv)
 	jiraPass := os.Getenv(passEnv)
