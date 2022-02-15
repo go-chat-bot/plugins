@@ -218,10 +218,10 @@ func periodicJIRANotifyResolved() (ret []bot.CmdResult, err error) {
 	}
 	for _, issue := range resolvedIssues {
 		channels := notifyResConfig[issue.Fields.Project.Key]
-		threadName := notifyResConfig[issue.Fields.Thread.Key][0]
 		for _, notifyChan := range channels {
+			threadName := channelConfigs[notifyChan].Thread
 			if thread {
-				notifyChan += ":" + notifyChan + "/threads/" + threadName
+				notifyChan += ":" + notifyChan + threadName
 			}
 			if verbose {
 				log.Printf("Notifying %s about resolved %s %s", notifyChan,
