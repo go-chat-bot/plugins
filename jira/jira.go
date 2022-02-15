@@ -219,7 +219,7 @@ func periodicJIRANotifyResolved() (ret []bot.CmdResult, err error) {
 		channels := notifyResConfig[issue.Fields.Project.Key]
 		for _, notifyChan := range channels {
 			if thread {
-				notifyChan += ":spaces/" + notifyChan + "/threads/jiraThread"
+				notifyChan += ":" + notifyChan + "/threads/jiraThread"
 			}
 			if verbose {
 				log.Printf("Notifying %s about resolved %s %s", notifyChan,
