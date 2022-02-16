@@ -182,6 +182,9 @@ func periodicJIRANotifyNew() (ret []bot.CmdResult, err error) {
 		log.Printf("New issues query: %s", query)
 	}
 	newIssues, _, err := client.Issue.Search(query, nil)
+	if verbose {
+		log.Printf("New issues result: %s", newIssues)
+	}
 	if err != nil {
 		log.Printf("Error querying JIRA for new issues: %v\n", err)
 		return nil, err
