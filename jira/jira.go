@@ -216,7 +216,7 @@ func periodicJIRANotifyResolved() (ret []bot.CmdResult, err error) {
 		componentsKeys = append(componentsKeys, k)
 	}
 
-	query := fmt.Sprintf(resolvedJQL, strings.Join(resolvedProjectKeys, ","))
+	query := fmt.Sprintf(projectJQL, strings.Join(resolvedProjectKeys, ","))
 	if len(componentsKeys) > 0 {
 		query += fmt.Sprintf(componentJQL, strings.Join(componentsKeys, ","))
 	}
