@@ -168,9 +168,16 @@ func periodicJIRANotifyNew() (ret []bot.CmdResult, err error) {
 	for k := range notifyNewConfig {
 		newProjectKeys = append(newProjectKeys, k)
 	}
+	componentsKeys := make([]string, 0, len(componentsConfig))
+	for k := range componentsConfig {
+		componentsKeys = append(componentsKeys, k)
+	}
 
-	query := fmt.Sprintf(newJQL, strings.Join(newProjectKeys, ","),
-		notifyInterval)
+	query := fmt.Sprintf(projectJQL, strings.Join(newProjectKeys, ","))
+	if len(componentsKeys) > 0 {
+		query += fmt.Sprintf(componentJQL, strings.Join(componentsKeys, ","))
+	}
+	query += fmt.Sprintf(newJQL, notifyInterval)
 	if verbose {
 		log.Printf("New issues query: %s", query)
 	}
