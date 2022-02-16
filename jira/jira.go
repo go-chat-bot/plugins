@@ -36,19 +36,20 @@ const (
 )
 
 var (
-	url             string
-	projects        map[string]gojira.Project // project.Key -> project map
-	channelConfigs  map[string]channelConfig  // channel -> channelConfig map
-	notifyNewConfig map[string][]string       // project.Key -> slice of channel names
-	notifyResConfig map[string][]string       // project.Key -> slice of channel names
-	client          *gojira.Client
-	re              = regexp.MustCompile(pattern)
-	newJQL          = "project in (%s) " +
-		"AND resolution = Unresolved " +
+	url              string
+	projects         map[string]gojira.Project // project.Key -> project map
+	channelConfigs   map[string]channelConfig  // channel -> channelConfig map
+	notifyNewConfig  map[string][]string       // project.Key -> slice of channel names
+	notifyResConfig  map[string][]string       // project.Key -> slice of channel names
+	componentsConfig map[string][]string       // project.key -> slice of component names
+	client           *gojira.Client
+	re               = regexp.MustCompile(pattern)
+	projectJQL       = "project in (%s) "
+	componentJQL     = "AND component in (%s) "
+	newJQL           = "AND resolution = Unresolved " +
 		"AND created > '-%dm' " +
 		"ORDER BY key ASC"
-	resolvedJQL = "project in (%s) " +
-		"AND resolved > '-%dm' " +
+	resolvedJQL = "AND resolved > '-%dm' " +
 		"ORDER BY key ASC"
 	notifyInterval int
 	verbose        bool
@@ -63,6 +64,7 @@ type channelConfig struct {
 	TemplateResolved string   `json:"templateResolved,omitempty"` // template format for resolved issues
 	NotifyNew        []string `json:"notifyNew,omitempty"`        // list of JIRA projects to watch for new issues
 	NotifyResolved   []string `json:"notifyResolved,omitempty"`   // list of JIRA projects to watch for resolved issues
+	Components       []string `json:"components,omitempty"`       // list of JIRA project components to watch for
 }
 
 func getProjects() (map[string]gojira.Project, error) {
@@ -209,9 +211,16 @@ func periodicJIRANotifyResolved() (ret []bot.CmdResult, err error) {
 	for k := range notifyResConfig {
 		resolvedProjectKeys = append(resolvedProjectKeys, k)
 	}
+	componentsKeys := make([]string, 0, len(componentsConfig))
+	for k := range componentsConfig {
+		componentsKeys = append(componentsKeys, k)
+	}
 
-	query := fmt.Sprintf(resolvedJQL, strings.Join(resolvedProjectKeys, ","),
-		notifyInterval)
+	query := fmt.Sprintf(resolvedJQL, strings.Join(resolvedProjectKeys, ","))
+	if len(componentsKeys) > 0 {
+		query += fmt.Sprintf(componentJQL, strings.Join(componentsKeys, ","))
+	}
+	query += fmt.Sprintf(resolvedJQL, notifyInterval)
 	if verbose {
 		log.Printf("Resolved issues query: %s", query)
 	}
@@ -273,6 +282,7 @@ func loadChannelConfigs(filename string) error {
 	channelConfigs = make(map[string]channelConfig)
 	notifyNewConfig = make(map[string][]string)
 	notifyResConfig = make(map[string][]string)
+	componentsConfig = make(map[string][]string)
 
 	file, err := os.Open(filename)
 	if err != nil {
@@ -308,6 +318,10 @@ func loadChannelConfigs(filename string) error {
 		}
 		for _, project := range chanConf.NotifyResolved {
 			notifyResConfig[project] = append(notifyResConfig[project],
+				chanConf.Channel)
+		}
+		for _, project := range chanConf.Components {
+			componentsConfig[project] = append(componentsConfig[project],
 				chanConf.Channel)
 		}
 	}
