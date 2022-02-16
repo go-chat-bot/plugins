@@ -234,7 +234,7 @@ func periodicJIRANotifyResolved() (ret []bot.CmdResult, err error) {
 	}
 	resolvedIssues, _, err := client.Issue.Search(query, nil)
 	if verbose {
-		log.Printf("Resolved issues result: %s", spew.Sdump(resolvedIssues))
+		log.Printf("Resolved issues result: %s", spew.Sdump(resolvedIssues.Components))
 	}
 	if err != nil {
 		log.Printf("Error querying JIRA for resolved issues: %v\n", err)
