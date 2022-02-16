@@ -1,0 +1,8 @@
+[
+    {
+        "channel": "spaces/AXYZIF4-ABC",
+        "thread": "threads/LMNOPQRggSE",
+        "notifyNew": ["JENKINS"],
+        "notifyResolved": ["JENKINS"]
+    }
+]

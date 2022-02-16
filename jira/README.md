@@ -49,6 +49,24 @@ Default template looks like this:
 `JIRA_NOTIFY_INTERVAL` environment variable can be used to control how often the
 notification methods will be run. It defaults to be run every minute.
 
+### Threaded notifications
+**NOTE:** This feature has only been tested in Google Chat. The person who wrote this code
+          does not use this bot in any other platform. Feel free to contribute to make it
+          work in your prefered platform (in case it supports threads).
+
+In Google Chat, each notification will create a new thread by default. In some cases, it might
+be desirable to restrict to a single thread, for cleaningness. Due to a limitation in the API,
+the thread must exist first. Once a thread is created, you must fetch the full URL. There are
+many different methods for this, so use whatever is better for you, but a thread URL
+should look similar to one of these examples:
+* `https://chat.google.com/room/<roomID>/<threadID>`
+* `https://mail.google.com/chat/u/0/#chat/space/<roomID>/<threadID>`
+
+Once you have that information, your `JIRA_CONFIG_FILE` should look like
+[example_config_thread.json](example_config_thread.json).
+
+Also you, need to start the bot with `JIRA_THREAD=true` environment variable defined.
+
 ### Verbose log
 If JIRA_VERBOSE variable is defined (any value) the bot generates a log
 every time it queries JIRA.
