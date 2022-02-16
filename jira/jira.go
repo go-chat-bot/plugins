@@ -12,6 +12,7 @@ import (
 	"text/template"
 
 	gojira "github.com/andygrunwald/go-jira"
+	"github.com/davecgh/go-spew/spew"
 	"github.com/go-chat-bot/bot"
 )
 
@@ -182,9 +183,6 @@ func periodicJIRANotifyNew() (ret []bot.CmdResult, err error) {
 		log.Printf("New issues query: %s", query)
 	}
 	newIssues, _, err := client.Issue.Search(query, nil)
-	if verbose {
-		log.Printf("New issues result: %s", newIssues)
-	}
 	if err != nil {
 		log.Printf("Error querying JIRA for new issues: %v\n", err)
 		return nil, err
@@ -235,6 +233,9 @@ func periodicJIRANotifyResolved() (ret []bot.CmdResult, err error) {
 		log.Printf("Resolved issues query: %s", query)
 	}
 	resolvedIssues, _, err := client.Issue.Search(query, nil)
+	if verbose {
+		log.Printf("Resolved issues result: %s", spew.Dump(resolvedIssues))
+	}
 	if err != nil {
 		log.Printf("Error querying JIRA for resolved issues: %v\n", err)
 		return nil, err
