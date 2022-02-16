@@ -164,6 +164,17 @@ func jira(cmd *bot.PassiveCmd) (bot.CmdResultV3, error) {
 	return result, nil
 }
 
+func containsComponent(fromJira []*gojira.Component, fromConf []string) bool {
+	for _, i := range fromConf {
+		for _, j := range fromJira {
+			if i == j.Name {
+				return true
+			}
+		}
+	}
+	return false
+}
+
 func periodicJIRANotifyNew() (ret []bot.CmdResult, err error) {
 	newProjectKeys := make([]string, 0, len(notifyNewConfig))
 	for k := range notifyNewConfig {
@@ -175,10 +186,7 @@ func periodicJIRANotifyNew() (ret []bot.CmdResult, err error) {
 	}
 
 	query := fmt.Sprintf(projectJQL, strings.Join(newProjectKeys, ","))
-	if len(componentsKeys) > 0 {
-		query += fmt.Sprintf(componentJQL, strings.Join(componentsKeys, ","))
-	}
-	query += fmt.Sprintf(newJQL, notifyInterval)
+	query = query + fmt.Sprintf(newJQL, notifyInterval)
 	if verbose {
 		log.Printf("New issues query: %s", query)
 	}
@@ -190,24 +198,29 @@ func periodicJIRANotifyNew() (ret []bot.CmdResult, err error) {
 	for _, issue := range newIssues {
 		channels := notifyNewConfig[issue.Fields.Project.Key]
 		for _, notifyChan := range channels {
-			threadName := channelConfigs[notifyChan].Thread
-			if thread && (len(threadName) > 0) {
-				notifyChan += ":" + notifyChan + "/" + threadName
+			if len(channelConfigs[notifyChan].Components) == 0 ||
+				(len(channelConfigs[notifyChan].Components) > 0 &&
+					containsComponent(issue.Fields.Components, channelConfigs[notifyChan].Components)) {
+				// displays only if Components are not defined OR Components exist in Jira output
+				threadName := channelConfigs[notifyChan].Thread
+				if thread && (len(threadName) > 0) {
+					notifyChan += ":" + notifyChan + "/" + threadName
+				}
+				if verbose {
+					log.Printf("Notifying %s about new %s %s", notifyChan,
+						issue.Fields.Type.Name,
+						issue.Key)
+				}
+				template := defaultTemplateNew
+				config, found := channelConfigs[notifyChan]
+				if found {
+					template = config.TemplateNew
+				}
+				ret = append(ret, bot.CmdResult{
+					Message: formatIssue(&issue, notifyChan, template),
+					Channel: notifyChan,
+				})
 			}
-			if verbose {
-				log.Printf("Notifying %s about new %s %s", notifyChan,
-					issue.Fields.Type.Name,
-					issue.Key)
-			}
-			template := defaultTemplateNew
-			config, found := channelConfigs[notifyChan]
-			if found {
-				template = config.TemplateNew
-			}
-			ret = append(ret, bot.CmdResult{
-				Message: formatIssue(&issue, notifyChan, template),
-				Channel: notifyChan,
-			})
 		}
 	}
 
@@ -225,42 +238,44 @@ func periodicJIRANotifyResolved() (ret []bot.CmdResult, err error) {
 	}
 
 	query := fmt.Sprintf(projectJQL, strings.Join(resolvedProjectKeys, ","))
-	if len(componentsKeys) > 0 {
-		query += fmt.Sprintf(componentJQL, strings.Join(componentsKeys, ","))
-	}
-	query += fmt.Sprintf(resolvedJQL, notifyInterval)
+	query = query + fmt.Sprintf(resolvedJQL, notifyInterval)
 	if verbose {
 		log.Printf("Resolved issues query: %s", query)
 	}
 	resolvedIssues, _, err := client.Issue.Search(query, nil)
-	if verbose {
-		log.Printf("Resolved issues result: %s", spew.Sdump(resolvedIssues.Components))
-	}
 	if err != nil {
 		log.Printf("Error querying JIRA for resolved issues: %v\n", err)
 		return nil, err
 	}
 	for _, issue := range resolvedIssues {
 		channels := notifyResConfig[issue.Fields.Project.Key]
+		if verbose {
+			log.Printf("Resolved issues result: %s", spew.Sdump(issue.Fields.Components))
+		}
 		for _, notifyChan := range channels {
-			threadName := channelConfigs[notifyChan].Thread
-			if thread && (len(threadName) > 0) {
-				notifyChan += ":" + notifyChan + "/" + threadName
+			if len(channelConfigs[notifyChan].Components) == 0 ||
+				(len(channelConfigs[notifyChan].Components) > 0 &&
+					containsComponent(issue.Fields.Components, channelConfigs[notifyChan].Components)) {
+				// displays only if Components are not defined OR Components exist in Jira output
+				threadName := channelConfigs[notifyChan].Thread
+				if thread && (len(threadName) > 0) {
+					notifyChan += ":" + notifyChan + "/" + threadName
+				}
+				if verbose {
+					log.Printf("Notifying %s about resolved %s %s", notifyChan,
+						issue.Fields.Type.Name,
+						issue.Key)
+				}
+				template := defaultTemplateResolved
+				config, found := channelConfigs[notifyChan]
+				if found {
+					template = config.TemplateResolved
+				}
+				ret = append(ret, bot.CmdResult{
+					Message: formatIssue(&issue, notifyChan, template),
+					Channel: notifyChan,
+				})
 			}
-			if verbose {
-				log.Printf("Notifying %s about resolved %s %s", notifyChan,
-					issue.Fields.Type.Name,
-					issue.Key)
-			}
-			template := defaultTemplateResolved
-			config, found := channelConfigs[notifyChan]
-			if found {
-				template = config.TemplateResolved
-			}
-			ret = append(ret, bot.CmdResult{
-				Message: formatIssue(&issue, notifyChan, template),
-				Channel: notifyChan,
-			})
 		}
 	}
 
