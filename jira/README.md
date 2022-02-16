@@ -26,7 +26,8 @@ configuration having:
  * `templateNew` to override default issue template for new issue notifications
  * `templateResolved` to override default issue template for resolved issue notifications
  * `notifyNew` is array of JIRA project keys to watch for new issues
- * `notifyResolved` is array JIRA project keys to watch for resolved issues
+ * `notifyResolved` is array of JIRA project keys to watch for resolved issues
+ * `components` (optional) is array of the specific JIRA project components to watch
 
 ### Issue Formatting
 
