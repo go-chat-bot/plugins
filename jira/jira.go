@@ -12,6 +12,7 @@ import (
 	"text/template"
 
 	gojira "github.com/andygrunwald/go-jira"
+	"github.com/davecgh/go-spew/spew"
 	"github.com/go-chat-bot/bot"
 )
 
@@ -32,34 +33,39 @@ const (
 		"({{.Fields.Assignee.Key}}, {{.Fields.Status.Name}}): " +
 		"{{.Fields.Summary}} - {{.Self}}"
 	verboseEnv = "JIRA_VERBOSE"
+	threadEnv  = "JIRA_THREAD"
 )
 
 var (
-	url             string
-	projects        map[string]gojira.Project // project.Key -> project map
-	channelConfigs  map[string]channelConfig  // channel -> channelConfig map
-	notifyNewConfig map[string][]string       // project.Key -> slice of channel names
-	notifyResConfig map[string][]string       // project.Key -> slice of channel names
-	client          *gojira.Client
-	re              = regexp.MustCompile(pattern)
-	newJQL          = "project in (%s) " +
-		"AND resolution = Unresolved " +
+	url              string
+	projects         map[string]gojira.Project // project.Key -> project map
+	channelConfigs   map[string]channelConfig  // channel -> channelConfig map
+	notifyNewConfig  map[string][]string       // project.Key -> slice of channel names
+	notifyResConfig  map[string][]string       // project.Key -> slice of channel names
+	componentsConfig map[string][]string       // project.key -> slice of component names
+	client           *gojira.Client
+	re               = regexp.MustCompile(pattern)
+	projectJQL       = "project in (%s) "
+	componentJQL     = "AND component in (%s) "
+	newJQL           = "AND resolution = Unresolved " +
 		"AND created > '-%dm' " +
 		"ORDER BY key ASC"
-	resolvedJQL = "project in (%s) " +
-		"AND resolved > '-%dm' " +
+	resolvedJQL = "AND resolved > '-%dm' " +
 		"ORDER BY key ASC"
 	notifyInterval int
 	verbose        bool
+	thread         bool
 )
 
 type channelConfig struct {
 	Channel          string   `json:"channel"`
+	Thread           string   `json:"thread,omitempty"`
 	Template         string   `json:"template,omitempty"`         // template format for issues being posted
 	TemplateNew      string   `json:"templateNew,omitempty"`      // template format for newly created issues
 	TemplateResolved string   `json:"templateResolved,omitempty"` // template format for resolved issues
 	NotifyNew        []string `json:"notifyNew,omitempty"`        // list of JIRA projects to watch for new issues
 	NotifyResolved   []string `json:"notifyResolved,omitempty"`   // list of JIRA projects to watch for resolved issues
+	Components       []string `json:"components,omitempty"`       // list of JIRA project components to watch for
 }
 
 func getProjects() (map[string]gojira.Project, error) {
@@ -158,14 +164,29 @@ func jira(cmd *bot.PassiveCmd) (bot.CmdResultV3, error) {
 	return result, nil
 }
 
+func containsComponent(fromJira []*gojira.Component, fromConf []string) bool {
+	for _, i := range fromConf {
+		for _, j := range fromJira {
+			if i == j.Name {
+				return true
+			}
+		}
+	}
+	return false
+}
+
 func periodicJIRANotifyNew() (ret []bot.CmdResult, err error) {
 	newProjectKeys := make([]string, 0, len(notifyNewConfig))
 	for k := range notifyNewConfig {
 		newProjectKeys = append(newProjectKeys, k)
 	}
+	componentsKeys := make([]string, 0, len(componentsConfig))
+	for k := range componentsConfig {
+		componentsKeys = append(componentsKeys, k)
+	}
 
-	query := fmt.Sprintf(newJQL, strings.Join(newProjectKeys, ","),
-		notifyInterval)
+	query := fmt.Sprintf(projectJQL, strings.Join(newProjectKeys, ","))
+	query = query + fmt.Sprintf(newJQL, notifyInterval)
 	if verbose {
 		log.Printf("New issues query: %s", query)
 	}
@@ -177,20 +198,29 @@ func periodicJIRANotifyNew() (ret []bot.CmdResult, err error) {
 	for _, issue := range newIssues {
 		channels := notifyNewConfig[issue.Fields.Project.Key]
 		for _, notifyChan := range channels {
-			if verbose {
-				log.Printf("Notifying %s about new %s %s", notifyChan,
-					issue.Fields.Type.Name,
-					issue.Key)
+			if len(channelConfigs[notifyChan].Components) == 0 ||
+				(len(channelConfigs[notifyChan].Components) > 0 &&
+					containsComponent(issue.Fields.Components, channelConfigs[notifyChan].Components)) {
+				// displays only if Components are not defined OR Components exist in Jira output
+				threadName := channelConfigs[notifyChan].Thread
+				if thread && (len(threadName) > 0) {
+					notifyChan += ":" + notifyChan + "/" + threadName
+				}
+				if verbose {
+					log.Printf("Notifying %s about new %s %s", notifyChan,
+						issue.Fields.Type.Name,
+						issue.Key)
+				}
+				template := defaultTemplateNew
+				config, found := channelConfigs[notifyChan]
+				if found {
+					template = config.TemplateNew
+				}
+				ret = append(ret, bot.CmdResult{
+					Message: formatIssue(&issue, notifyChan, template),
+					Channel: notifyChan,
+				})
 			}
-			template := defaultTemplateNew
-			config, found := channelConfigs[notifyChan]
-			if found {
-				template = config.TemplateNew
-			}
-			ret = append(ret, bot.CmdResult{
-				Message: formatIssue(&issue, notifyChan, template),
-				Channel: notifyChan,
-			})
 		}
 	}
 
@@ -202,9 +232,13 @@ func periodicJIRANotifyResolved() (ret []bot.CmdResult, err error) {
 	for k := range notifyResConfig {
 		resolvedProjectKeys = append(resolvedProjectKeys, k)
 	}
+	componentsKeys := make([]string, 0, len(componentsConfig))
+	for k := range componentsConfig {
+		componentsKeys = append(componentsKeys, k)
+	}
 
-	query := fmt.Sprintf(resolvedJQL, strings.Join(resolvedProjectKeys, ","),
-		notifyInterval)
+	query := fmt.Sprintf(projectJQL, strings.Join(resolvedProjectKeys, ","))
+	query = query + fmt.Sprintf(resolvedJQL, notifyInterval)
 	if verbose {
 		log.Printf("Resolved issues query: %s", query)
 	}
@@ -215,21 +249,33 @@ func periodicJIRANotifyResolved() (ret []bot.CmdResult, err error) {
 	}
 	for _, issue := range resolvedIssues {
 		channels := notifyResConfig[issue.Fields.Project.Key]
+		if verbose {
+			log.Printf("Resolved issues result: %s", spew.Sdump(issue.Fields.Components))
+		}
 		for _, notifyChan := range channels {
-			if verbose {
-				log.Printf("Notifying %s about resolved %s %s", notifyChan,
-					issue.Fields.Type.Name,
-					issue.Key)
+			if len(channelConfigs[notifyChan].Components) == 0 ||
+				(len(channelConfigs[notifyChan].Components) > 0 &&
+					containsComponent(issue.Fields.Components, channelConfigs[notifyChan].Components)) {
+				// displays only if Components are not defined OR Components exist in Jira output
+				threadName := channelConfigs[notifyChan].Thread
+				if thread && (len(threadName) > 0) {
+					notifyChan += ":" + notifyChan + "/" + threadName
+				}
+				if verbose {
+					log.Printf("Notifying %s about resolved %s %s", notifyChan,
+						issue.Fields.Type.Name,
+						issue.Key)
+				}
+				template := defaultTemplateResolved
+				config, found := channelConfigs[notifyChan]
+				if found {
+					template = config.TemplateResolved
+				}
+				ret = append(ret, bot.CmdResult{
+					Message: formatIssue(&issue, notifyChan, template),
+					Channel: notifyChan,
+				})
 			}
-			template := defaultTemplateResolved
-			config, found := channelConfigs[notifyChan]
-			if found {
-				template = config.TemplateResolved
-			}
-			ret = append(ret, bot.CmdResult{
-				Message: formatIssue(&issue, notifyChan, template),
-				Channel: notifyChan,
-			})
 		}
 	}
 
@@ -239,18 +285,18 @@ func periodicJIRANotifyResolved() (ret []bot.CmdResult, err error) {
 func initJIRAClient(baseURL, jiraUser, jiraPass, jiraToken string) error {
 	var err error
 
-  if len(jiraToken) > 0 {
-    tpPATA := gojira.PATAuthTransport {
-      Token: jiraToken,
-    }
-    client, err = gojira.NewClient(tpPATA.Client(), baseURL)
-  } else {
-    tpBA := gojira.BasicAuthTransport{
-      Username: jiraUser,
-      Password: jiraPass,
-    }
-    client, err = gojira.NewClient(tpBA.Client(), baseURL)
-  }
+	if len(jiraToken) > 0 {
+		tpPATA := gojira.PATAuthTransport{
+			Token: jiraToken,
+		}
+		client, err = gojira.NewClient(tpPATA.Client(), baseURL)
+	} else {
+		tpBA := gojira.BasicAuthTransport{
+			Username: jiraUser,
+			Password: jiraPass,
+		}
+		client, err = gojira.NewClient(tpBA.Client(), baseURL)
+	}
 	if err != nil {
 		log.Printf("Error initializing JIRA client: %v\n", err)
 		return err
@@ -262,6 +308,7 @@ func loadChannelConfigs(filename string) error {
 	channelConfigs = make(map[string]channelConfig)
 	notifyNewConfig = make(map[string][]string)
 	notifyResConfig = make(map[string][]string)
+	componentsConfig = make(map[string][]string)
 
 	file, err := os.Open(filename)
 	if err != nil {
@@ -299,12 +346,17 @@ func loadChannelConfigs(filename string) error {
 			notifyResConfig[project] = append(notifyResConfig[project],
 				chanConf.Channel)
 		}
+		for _, project := range chanConf.Components {
+			componentsConfig[project] = append(componentsConfig[project],
+				chanConf.Channel)
+		}
 	}
 	return nil
 }
 
 func init() {
 	_, verbose = os.LookupEnv(verboseEnv)
+	_, thread = os.LookupEnv(threadEnv)
 
 	jiraUser := os.Getenv(userEnv)
 	jiraPass := os.Getenv(passEnv)
